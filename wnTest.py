@@ -3,6 +3,16 @@ from nltk.corpus import wordnet as wn
 import csv
 
 def verify_synset_name(ss_name, word, pos):
+    """
+    Checks if the name of a C{Synset} contains the given word and part of speech
+
+    @param ss_name: The name of the C{Synset} to be verified
+    @type ss_name: C{str}
+    @param word: The word that the name of the C{Synset} should correspond to
+    @type word: C{str}
+    @param pos: The part of speech that the name of the C{Synset} should correspond to (must be a single character)
+    @type pos: C{str}
+    """
     splitStr = ss_name.split(".")
     return (splitStr[0] == word and splitStr[1] == pos)
 
@@ -57,9 +67,27 @@ def sem_sim_test1(known_words_filename, unknown_words_filename, pos):
     return results
 
 def process_results(results_list):
+    """
+    Sorts a list of C{SemanticSimilarityResult} objects in descsending order by semantic similarity score
+
+    @param results_list: The list of C{SemanticSimilarityResult} objects to be sorted
+    @type results_list: C{list}
+    @return: The sorted list of C{SemanticSimilarityResult} objects
+    @rtype: C{list}
+    """
     return sorted(results_list, key=lambda res:res.sem_sim_score, reverse=True)
 
 def output_results(results_list, output_filename):
+    """
+    Prints the given list of C{SemanticSimilarityResult} objects to a CSV file
+
+    Given a list of C{SemanticSimilarityResult} objects and a .csv filename, writes the values of the result objects to specified file.
+
+    @param results_list: The list of C{SemanticSimilarityResult} objects to be printed to the CSV file
+    @type results_list: C{list}
+    @param output_filename: The name of the CSV file to be written to
+    @type output_filename: C{str}
+    """
     # Open the output file for writing
     out_file = open(output_filename, "wb")
     out_writer = csv.writer(out_file)
@@ -71,7 +99,19 @@ def output_results(results_list, output_filename):
         out_writer.writerow((res.unknown, res.known, res.unknown_synset, res.known_synset, res.unknown_definition, res.known_definition,
         res.sem_sim_score))
 
-def extract_closest_words(results_list, threshold):
+def filter_results(results_list, threshold):
+    """
+    Returns a filtered list of the results of the given list based on the given semantic similarity score threshold
+
+    Given a list of C{SemanticSimilarityResult} objects and a threshold value, filters the list removing result objects with semantic similarity scores less than the threshold or greater or equal to 1 (the score will not exceed 1). Returns the filtered list.
+
+    @param results_list: The list of C{SemanticSimilarityResult} objects to be filtered
+    @type results_list: C{list}
+    @param threshold: The semantic similarity score threshold at which results with a score lower than this threshold will be removed from C{results_list}
+    @type threshold: C{number}
+    @return: The filtered list of C{SemanticSimilarityResult} objects
+    @rtype: C{list}
+    """
     return [res for res in results_list if res.sem_sim_score >= threshold and res.sem_sim_score < 1]
 
 
