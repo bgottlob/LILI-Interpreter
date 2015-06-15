@@ -66,6 +66,53 @@ def sem_sim_test1(known_words_filename, unknown_words_filename, pos):
 
     return results
 
+def sem_sim_test2(known_words_filename, unknown_words_filename, pos):
+    # Start an empty list of results
+    results = []
+
+    # Start an empty list of known verbs
+    known_words = []
+
+    # Open the CSV file of known words and read contents
+    with open(known_words_filename, "rb") as known_words_file:
+        known_word_reader = csv.reader(known_words_file)
+        # Assuming first line in CSV file is a header
+        next(known_word_reader, None)
+        for row in known_word_reader:
+            # Add to the list of known verbs
+            known_words.append((row[0].lower(), row[1]))
+
+    # Open the file of unknown words and begin processing
+    unknown_words_file = open(unknown_words_filename, "rb")
+    for line in unknown_words_file:
+        max_sem_sim_score = -1 # If words are not semantically similar, this value will not be changed
+        max_unknown_synset = None
+        max_known_synset = None
+        known_choice = 'No match found'
+        match_found = False
+        unknown = line.lower().strip()
+        for known_tuple in known_words:
+            known = known_tuple[0]
+            known_synset = wn.synset(known_tuple[1])
+            if verify_synset_name(known_synset.name(), known, pos):
+                for unknown_synset in wn.synsets(unknown):
+                    if verify_synset_name(unknown_synset.name(), unknown, pos):
+                        sem_sim_score = unknown_synset.path_similarity(known_synset)
+                        if sem_sim_score > max_sem_sim_score:
+                            max_sem_sim_score = sem_sim_score
+                            max_unknown_synset = unknown_synset
+                            max_known_synset = known_synset
+                            known_choice = known
+                            match_found = True
+        if match_found:
+            results.append(SemanticSimilarityResult(unknown, known_choice, max_unknown_synset.name(), max_known_synset.name(), max_unknown_synset.definition(), max_known_synset.definition(), max_sem_sim_score))
+        else:
+            results.append(SemanticSimilarityResult(unknown,"No match found","N/A","N/A","N/A","N/A",max_sem_sim_score))
+
+        print ("Finished processing " + unknown)
+
+    return results
+
 def process_results(results_list):
     """
     Sorts a list of C{SemanticSimilarityResult} objects in descsending order by semantic similarity score
