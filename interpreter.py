@@ -24,7 +24,7 @@ while wordNum < len(taggedSent) and (not foundVerb):
 print "The verb is " + verb
 
 if not foundVerb:
-    verb = raw_input("Verb not found, enter one yourself:\n")
+    # verb = raw_input("Verb not found, enter one yourself:\n")
     foundVerb = True
 if foundVerb:
     knownVerbs = ["turn", "follow", "stop"]
