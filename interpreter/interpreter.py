@@ -1,8 +1,23 @@
 import nltk
 import json
+import extractor
 
 # Perform any preprocessing tasks on the text - currently only tokenizes text
 def preprocess_text(text):
+    """
+    Preprocesses a raw text sentence. Currently only breaks it up into tokens.
+
+    Used to do any preprocessing on a sentence in raw text. Currently, the only preprocessing operation is tokenizing the sentence into individual words and punctuation marks.
+
+    Args:
+        sent (str): A string containing a command sentence
+
+    Returns:
+        res (list): A list of preprocessed tokens from the sentence
+
+    Note:
+        Do not do any part of speech tagging in this function. It is a computation intensive task and may not be needed for all commands.
+    """
     res = nltk.word_tokenize(text)
     return res
 
@@ -14,108 +29,26 @@ def preprocess_text(text):
 def extract_action(sent, known_actions):
     token_index = 0
     for token in sent:
-        for syn_list in known_actions:
-            for action in syn_list:
-                if token.lower() == action:
-                    return (token.lower(), token_index)
-        token_index += 1
+        token = token.lower()
+        search_res = binary_search_actions(token, known_actions)
+        if search_res > -1:
+            return (search_res, token_index)
+    # If no main action is found, return (-1,0)
+    return (-1, 0)
 
-# Considers personal pronouns as nouns as long as any type of tagged noun (proper noun, etc.)
-def is_noun(tag):
-    return (tag == "PRP" or tag.startswith("NN"))
+def binary_search_actions(target, pool):
 
-# IN is the general preposition tag, but the word "to" has its own TO tag whenever it is being used as a preposition
-# The distinction between words tagged as TO and those tagged as IN is not important to interpretation with the basic rules right now
-def is_preposition(tag):
-    return (tag == "TO" or tag == "IN")
+    if (len(pool) == 0):
+        return -1
 
-# Assumes that input sentence has been tagged with POS
-# Assumes first noun is always a person that will be followed
-# Assumes that second noun (if found) is always a place to follow the person to
-def object_dict_follow(sent):
-    object_dict = {}
-    for token in sent:
-        if is_noun(token[1]):
-            if len(object_dict) == 0:
-                object_dict["person"] = token[0]
-            elif len(object_dict) == 1:
-                object_dict["place"] = token[0]
-
-    return object_dict
-
-# Only the first noun will be detected in this case
-# If that first noun is preceded by a preposition, then it is a place for LILI to move to
-# If the first noun is not preceded by a preposition, then it is the direction for LILI to move in
-def object_dict_move(sent):
-
-    object_dict = {}
-    prep_found = False
-
-    for token in sent:
-        if is_preposition(token[1]):
-            prep_found = True
-        elif is_noun(token[1]):
-            if prep_found:
-                obj_tag = "place"
-            else:
-                obj_tag = "direction"
-            object_dict[obj_tag] = token[0]
-
-    return object_dict
-
-# The first noun to follow "about" is the topic
-# The first noun to follow any preposition besides "about" is the person to talk to
-def object_dict_talk(sent):
-
-    object_dict = {}
-    prep_found = False
-    about_found = False
-
-    for token in sent:
-
-        if token[0].lower() != "about" and is_preposition(token[1]):
-            prep_found = True
-        elif token[0].lower() == "about":
-            about_found = True
-
-        if is_noun(token[1]):
-            if prep_found and not about_found:
-                object_dict["person"] = token[0]
-                prep_found = False
-            elif about_found and not prep_found:
-                object_dict["topic"] = token[0]
-                about_found = False
-            else:
-                obj_tag = "unknown"
-                object_dict["unknown"] = token[0]
-
-    return object_dict
-
-def object_dict_show(sent):
-
-    object_dict = {}
-    prec_found = False
-    to_found = False
-
-    for token in sent:
-        if token[1] == "TO":
-            to_found = True
-        elif token[1] == "DT":
-            prec_found = True
-        elif is_noun(token[1]):
-            if prec_found:
-                object_dict["object"] = token[0]
-            else:
-                object_dict["person"] = token[0]
-        elif token[1] ==  "VB":
-            if to_found:
-                object_dict["show_action"] = token[0]
-                prec_found = True
-
-    if to_found:
-        object_dict["video_title"] = object_dict["show_action"] + "-" + object_dict["object"]
-
-    return object_dict
+    mid = len(pool)/2
+    
+    if target < pool[mid][0]:
+        return binary_search_actions(target, pool[:mid])
+    elif target > pool[mid][0]:
+        return binary_search_actions(target, pool[mid+1:])
+    else:
+        return pool[mid][1]
 
 def generate_object_dict(sent, action_tuple):
 
@@ -128,17 +61,7 @@ def generate_object_dict(sent, action_tuple):
     # Maybe get rid of the action and everything behind it as well - can't think of any important text that could come before the main action
     trimmed_sent = tagged_sent[:action_tuple[1]] + tagged_sent[action_tuple[1]+1:]
 
-    object_dict = {}
-
-    # Must change these conditions to take input from file
-    if action_tuple[0] == "follow":
-        object_dict = object_dict_follow(trimmed_sent)
-    elif action_tuple[0] == "move":
-        object_dict = object_dict_move(trimmed_sent)
-    elif action_tuple[0] == "talk":
-        object_dict = object_dict_talk(trimmed_sent)
-    elif action_tuple[0] == "show":
-        object_dict = object_dict_show(trimmed_sent)
+    object_dict = object_extractor_functions[action_tuple[0]](trimmed_sent)
 
     return object_dict
 
@@ -148,22 +71,59 @@ def generate_json(action, object_dict):
     return result
     #return json.dumps(result)
 
-# TODO: read this array from a file
-known_actions = [["teach", "show"], ["turn", "twist", "rotate", "move", "go"], ["stop"], ["follow", "watch"], ["speak","talk","tell"], ["play", "start"]]
+def build_action_structures(filename):
+    inp_file = open(filename, "rb")
+    known_actions = []
+    object_dict_functions = []
+    line_num = 0
+    for line in inp_file:
+        line = line.strip().lower()
+        # Checks to make sure the line isn't an empty string after trimming whitespace
+        if line:
+            actions = line.split(",")
+            # Checks to make sure there is at least one action
+            if len(actions) > 0:
+                func_name = "object_dict_" + actions[0]
+                try:
+                    object_dict_functions.append(getattr(extractor, "object_dict_" + actions[0]))
+                    for action in actions:
+                        action = action.strip()
+                        known_actions.append((action, line_num))
+                    line_num += 1
+                except AttributeError:
+                    print "Error: There is no object extraction function called " + func_name
+                except StandardError as err:
+                    print str(err)
+
+    # Sorts the list of known actions by A-Z alphabetical order
+    known_actions = sorted(known_actions, key=lambda tup: tup[0])
+
+    return (known_actions, object_dict_functions)
 
 def test_sent(sent_text):
-    print "Processing this sentence:"
+    print "Preprocessing this sentence:"
     print sent_text
     sent = preprocess_text(sent_text)
     print "Tokenized:"
     print sent
     action_tuple = extract_action(sent, known_actions)
+
+    # If this occurred, the action was not recognized
+    if action_tuple[0] < 0:
+        error_dict = {"error":"Main action not found"}
+        #return json.dumps(error_dict)
+        return error_dict
+
     print "Action Tuple:"
     print action_tuple
     object_dict = generate_object_dict(sent, action_tuple)
     return generate_json(action_tuple[0], object_dict)
     print "\n"
 
-"""sent_file = open("test_sents.txt", "rb")
-for line in sent_file:
-    test_sent(line)"""
+res = build_action_structures("known_actions.txt")
+known_actions = res[0]
+object_extractor_functions = res[1]
+
+print str(known_actions)
+print str(object_extractor_functions)
+print str(test_sent("Blorggdfslgk me to play tennis"))
