@@ -1,0 +1,6 @@
+move,go
+turn,twist,rotate
+stop
+follow
+talk,speak,tell
+show,teach

@@ -6,12 +6,12 @@ def sem_sim_test2(known_words_filename, unknown_words_filename, **kwargs):
     """
     Tests semantic similarity mapping from unknown words to known words. Synsets of the unknown words are not known in advance and those of the known words are determined in advance.
 
-    Accepts a CSV file of known words paired with their assumed WordNet synset and a text file of unknown words (with one word per line). Each unknown word is matched up with the known word that it is most semantically similar to. "Known" words are words that LILI has been preprogrammed to recognize or respond to in some way, while "unknown" words are those that LILI does not understand by default. Semantic similarity measures are made using WordNet and attempt to allow LILI to understand an open vocabulary beyond the words and phrases it has been preprogrammed to respond to. This test returns a list of :class:`~wntest.SemanticSimilarityResult` objects to store the results of the test for each unknown word.
+    Accepts a CSV file of known words paired with their assumed WordNet synset and a text file of unknown words (with one word per line). Each unknown word is matched up with the known word that it is most semantically similar to. "Known" words are words that LILI has been preprogrammed to recognize or respond to in some way, while "unknown" words are those that LILI does not understand by default. Semantic similarity measures are made using WordNet and attempt to allow LILI to understand an open vocabulary beyond the words and phrases it has been preprogrammed to respond to. This test returns a list of :class:`~semsim.wntest.SemanticSimilarityResult` objects to store the results of the test for each unknown word.
 
     Args:
-        known_words_filename (str): The filename of the CSV file containing known words paired with their assumed synsets 
+        known_words_filename (str): The filename of the CSV file containing known words paired with their assumed synsets
         unknown_words_filename (str): The filename of the text file containing unknown words
-    
+
     Kwargs:
         pos (str): The part of speech of the words to be evaluated. Can have the values "verb", "noun", "adj", or "adv". If neither of these values are used or no value is provided, searching the synsets of the unknown word will not be filtered by part of speech, resulting in more processing time and potentially less accurate results
 
@@ -153,7 +153,7 @@ class SemanticSimilarityResult:
     """ This class is used to package results from semantic similarity tests. Each object of this class holds the result of a single unknown to known word mapping.
 
     This class stores a variety of information for analysis purposes, including the synsets with the highest similarity score, their definitions, the semantic similarity score, and most importantly the known word that the unknown word will map to. This class is to be used for testing and analysis purposes to see how the semantic similarity measure may be improved. The only pieces of information important to the final result of the LILI interpreter is the known word that the unknown word is mapped to.
-    
+
     Attributes:
         unknown (str): The unknown word that has been mapped to a known word
         known (str): The known word that has been mapped to

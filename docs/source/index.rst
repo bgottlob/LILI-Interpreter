@@ -10,6 +10,9 @@ Contents:
 
    wntest
    interpreter
+   interpreterdemo
+   extractor
+   terms
 
 Indices and tables
 ==================

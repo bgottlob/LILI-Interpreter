@@ -46,13 +46,13 @@ def extract_action(sent, known_actions):
 
 def binary_search_actions(target, pool):
     """
-    Binary search to find a target word in a pool of possibilities.
+    Binary search to find a *target* word in a *pool* of possibilities.
 
-    This binary search is used to find a target word with fast performance even with a large search pool. It is implemented recursively to provide a simpler implementation. Assumes that the known actions list is sorted in descending (A to Z) order.
+    This binary search is used to find a *target* word with fast performance even with a large search *pool*. It is implemented recursively to provide a simpler implementation. It assumes that the known actions list is sorted in descending (A to Z) order.
 
     Args:
         target (str): The word to search for
-        pool (list): A list of tuples - the first value of each tuple is the word to compare agains - the second value in each tuple is an index value that corresponds to a set of synonymous actions
+        pool (list): A list of tuples (*str*, *int*) - the first value of each tuple is the word to compare agains - the second value in each tuple is an index value that corresponds to a set of synonymous actions
 
     Return:
         int: The index of the found word's corresponding set of synonymous actions - returns -1 if no match is found
@@ -72,7 +72,7 @@ def binary_search_actions(target, pool):
     else: # Match has been found
         return pool[mid][1]
 
-def generate_object_dict(sent, action_tuple):
+def generate_object_dict(sent, action_tuple, object_extractor_functions):
     """
     Creates a dictionary of keywords from the sentence that are objects of the action to be taken.
 
@@ -90,8 +90,8 @@ def generate_object_dict(sent, action_tuple):
     tagged_sent = nltk.pos_tag(sent)
 
     # Output for debugging
-    print "Tagged sentence:"
-    print tagged_sent
+    """print "Tagged sentence:"
+    print tagged_sent"""
 
     # Remove the main action from the sentence - it does not need to be considered when extracting objects
     # If problems occur later down the road, maybe get rid of the action and everything behind it as well
@@ -125,7 +125,7 @@ def build_action_structures(filename):
     """
     Given a filename that contains a list of known main actions, generates the data structures needed to interpret commands.
 
-    Opens a file of known actions, where each action set is represented on one line, and each word contained in that action set is separated by a comma (if there are multiple words in that set). For each word in this file, a tuple is generated that contains that word along with the line number it is found on in the file (starting with 0). That line number value is the main action's index, which maps the word to it's set of synonymous actions. This tuple is then appended to the list of known actions. This list is sorted by A-Z order before it is returned to prepare it for binary search operations. A list of object extractor functions is created to correspond to the main action indices to be called later on. For each line, another function is added to the extractor function list. To determine the name of the extractor function to be added next, the first word in the action set (effectively the first word in the current line) is appended to the end of the string "object_dict_". Once the function name string is built, the function is retreived from the extractor module and is appended to the extractor function list.
+    Opens a file of known actions, where each action set is represented on one line, and each word contained in that action set is separated by a comma (if there are multiple words in that set). For each word in this file, a tuple is generated that contains that word along with the line number it is found on in the file (starting with 0). That line number value is the main action's index, which maps the word to it's set of synonymous actions. This tuple is then appended to the list of known actions. This list is sorted by A-Z order before it is returned to prepare it for binary search operations. A list of object extractor functions is created to correspond to the main action indices to be called later on. For each line, another function is added to the extractor function list. To determine the name of the extractor function to be added next, the first word in the action set (effectively the first word in the current line) is appended to the end of the string "object_dict\_". Once the function name string is built, the function is retreived from the extractor module and is appended to the extractor function list.
 
     Args:
         filename (str): The path (or filename if in the current directory) of the file that contains the list of known actions
@@ -152,9 +152,10 @@ def build_action_structures(filename):
             actions = line.split(",")
             # Checks to make sure there is at least one action, avoid exception
             if len(actions) > 0:
+                func_name = "object_dict_" + actions[0]
                 try:
                     # Gets the corresponding object extractor function from the extractor module and adds it to the list to be returned
-                    object_dict_functions.append(getattr(extractor, "object_dict_" + actions[0]))
+                    object_dict_functions.append(getattr(extractor, func_name))
                     for action in actions:
                         action = action.strip()
                         # Add each known action and its action set index to the list to be returned
@@ -189,7 +190,7 @@ def test_sent(sent_text):
 
     print "Action Tuple:"
     print action_tuple
-    object_dict = generate_object_dict(sent, action_tuple)
+    object_dict = generate_object_dict(sent, action_tuple, object_extractor_functions)
     return generate_json(action_tuple[0], object_dict)
     print "\n"
 
