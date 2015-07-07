@@ -9,6 +9,7 @@ Contents:
    :maxdepth: 2
 
    wntest
+   interpreter
 
 Indices and tables
 ==================

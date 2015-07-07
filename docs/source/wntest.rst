@@ -1,7 +1,5 @@
 wntest module
 =============
 
-.. automodule:: wntest
+.. automodule:: semsim.wntest
     :members:
-    :undoc-members:
-    :show-inheritance:
