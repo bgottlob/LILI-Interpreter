@@ -1,20 +1,25 @@
 interpreter module demo
 =======================
 
+.. _initial-setup:
+
 Initial Setup
 ------------------------------------------
 .. include:: known_actions.txt
    :literal:
 
-Each line in this input file represents one **action set**. All actions in the a synonym set are recognized as having the same meaning (they are known as synonyms), and will be interpreted and executed by LILI in the same exact way. For example, *show* and *teach* are synonyms, so the commands *Show me how to wash my hands* and *Teach me how to wash my hands* are exactly the same to LILI.
+Each line in this input file represents one :ref:`action set <action-set>`. All :ref:`actions <action>` in an set are recognized as having the same meaning and will be interpreted and executed by LILI in the same exact way. For example, *show* and *teach* are considered synonyms since they are in the same action set. Therefore the commands *Show me how to wash my hands* and *Teach me how to wash my hands* have the exact same meaning to the interpreter.
 
-Each action set has an index value (referred to as the **action set index**), which is simply the line number the set is found on minus 1. The action set index of the action set *[move, go]* is 0, the index of *[turn, twist, rotate]* is 1, and so on.
+Each action set has an :ref:`action set index value <action-set-index>`, which is calculated as the line number the set is found on minus 1.
+
+* For example:
+
+   * *[move, go]* has an action set index of 0
+   * *[turn, twist, rotate]* has an action set index of 1
 
 .. testsetup:: *
 
    import interpreter.interpreter as interp
-
-The following code generates two important data structures in the interpretation task. The first is the list of known actions, which is a list of tuples containing the action along with its action set index. The other is a list of **object extractor functions**, which are functions that pick out key words (known as **objects**) from the command and label them with semantic tags, thus indicating how LILI should interact with each object.
 
 .. testcode::
 
@@ -26,23 +31,40 @@ The following code generates two important data structures in the interpretation
    funcs = [func.__name__ for func in object_extractor_functions]
    print funcs
 
-The first line of output shows the contents of the known actions list. Each element in that list is a tuple of the form (*action*, *action_set_index*). It is important to note that the *action* is only used to pick words out of the command, whereas the *action_set_index* gives actual meaning to the action.
+The above code generates two important data structures in the interpretation task:
 
-The second line of output shows the name of each function in the object extractor function list. The actual function is stored as an object in the list *object_extractor_functions*, but a list of the names are printed as output here for readability. Therefore, each individual function can be called later on by indexing that array like so: ``object_extractor_functions[<index>](<params>)``.
+1. List of known actions
 
-Notice that the action set index of each known action corresponds to the appropriate object extractor. For example, the object extractor for *talk*, *speak*, and *tell* are in the action set with an index of 4 and their object extractor can be accessed at index 4 (the 5th element) of ``object_extractor_functions``.
+   * Each element is a tuple containing the action and its action set index
+   * Each tuple takes the form (*action*, *action_set_index*)
 
-Also notice that the name of the extractor functions begin with "object_dict\_" and end with the first action of its corresponding action set. This concept is important to maintainability of the system. When new action sets are added to the input file, their indices are generated automatically, and the extractor functions are automatically placed in the correct order, as long as the first action of each set matches the suffix of the corresponding extractor function. Thus, the maintainer does not need to be concerned with the order of function declarations or lines in the input file.
+      * The *action* is only used to find a specific word in the command
+      * The *action_set_index* gives actual meaning to the action
+
+
+2. List of :ref:`object extractor functions <object-extractor-function>`
+
+   * Pulled from the :mod:`~interpreter.extractor` module
+   * There is one function per action set
+   * Each function corresponds a single action set
+   * The index of each function in the list is the same as its correspond action set's index
+   * The name of each function begins with ```object_dict\_`` and the first action in its corresponding action set is appended to the end
 
 .. testoutput::
 
    [('follow', 3), ('go', 0), ('move', 0), ('rotate', 1), ('show', 5), ('speak', 4), ('stop', 2), ('talk', 4), ('teach', 5), ('tell', 4), ('turn', 1), ('twist', 1)]
    ['object_dict_move', 'object_dict_turn', 'object_dict_stop', 'object_dict_follow', 'object_dict_talk', 'object_dict_show']
 
+The first line of output shows the contents of the known actions list.
+
+The second line of output shows the name of each function in the object extractor function list. The actual function is stored as an object in the list ``object_extractor_functions``, but a list of the names are printed as output here for readability. Therefore, each individual function can be called later on by indexing that list like so: ``object_extractor_functions[<index>](<params>)``.
+
+Notice that the action set index of each known action corresponds to the appropriate object extractor. For example, the object extractor for *talk*, *speak*, and *tell* are in the action set with an index of 4 and their object extractor can be accessed at index 4 (the 5th element) of ``object_extractor_functions``.
+
+Also notice that the name of the extractor functions begin with ``"object_dict\_"`` and end with the first action of its corresponding action set. This concept is important to maintainability of the system. When new action sets are added to the input file, their indices are generated automatically, and the extractor functions are automatically placed in the correct order, as long as the first action of each set matches the suffix of the corresponding extractor function. Thus, the maintainer does not need to be concerned with the order of function declarations or lines in the input file.
+
 Preprocessing and Action Detection
 -----------------------------------
-
-The following code simply preprocesses a raw text command, which currently only involves tokenizing it.
 
 .. testcode::
 
@@ -54,12 +76,14 @@ The following code simply preprocesses a raw text command, which currently only 
 
    ['Teach', 'me', 'how', 'to', 'wash', 'my', 'hands']
 
-The following code searches through each token (from first to last) to see if any of the words match an action in the known actions list built in the section above.
+The above code simply preprocesses a raw text command, which currently only involves tokenizing it.
 
 .. testcode::
 
    action_tuple = interp.extract_action(sent, known_actions)
    print action_tuple
+
+The above code searches through each token (from first to last) to see if any of the words match an action in the known actions list built in the :ref:`previous section <initial-setup>`.
 
 .. testoutput::
 
@@ -69,8 +93,6 @@ The output of this search is a tuple containing the found action's set index alo
 
 Extracting Objects from the Command
 ------------------------------------
-
-The following code extracts the objects from the rest of the command, since the action has been extracted in the previous section. The action set index determines which object extractor function will be applied to the rest of the command, and thus what set of rules are going to be used to extract the objects. Since the action is *teach*, the first action in its action set is *show*, and thus the appropriate object extractor function for this command is ``object_dict_show()``, which is called by indexing the ``object_extractor_functions`` list inside of the ``interp.generate_object_dict()`` function.
 
 .. testcode::
 
@@ -82,6 +104,9 @@ The following code extracts the objects from the rest of the command, since the 
    print "object: " + object_dict["object"]
    print "video_title: " + object_dict["video_title"]
 
+
+The above code extracts the objects from the command. The action set index determines which object extractor function will be applied and thus what set of rules are going to be used to extract the objects. Since the action is *teach*, the first action in its action set is *show*, and thus the appropriate object extractor function for this command is :meth:`~interpreter.extractor.object_dict_show`, which is called by indexing the ``object_extractor_functions`` list inside of the :meth:`~interpreter.interpreter.generate_object_dict` function.
+
 .. testoutput::
 
    person: me
@@ -89,6 +114,6 @@ The following code extracts the objects from the rest of the command, since the 
    object: hands
    video_title: wash-hands
 
-The above output simply displays the values of the objects along with their keys as stored in the resulting **object dictionary**, which is a Python *dict* structure that maps objects to semantic labels. The keys are essentially semantic labels that can be given to the LILI master control module to execute the appropriate action. The resulting object dictionary can be sent to another software component as a JSON string or a Python *dict*.
+The above output simply displays the values of the objects along with their keys as stored in the resulting :ref:`object dictionary <object-dictionary>`, which is stored as a Python *dict*. The resulting object dictionary can be sent to another software component as a JSON string or a Python *dict* and the dictionary's content and semantic labels can used to determine which tasks LILI must complete.
 
-See the
+See the :mod:`~interpreter.extractor` module for a full list of object extractor functions and the rules they utilize.

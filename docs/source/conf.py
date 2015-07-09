@@ -36,9 +36,8 @@ sys.path.append('../../semsim/')
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'sphinx.ext.intersphinx',
+    'sphinx.ext.viewcode',
     'sphinx.ext.doctest',
-    'sphinx.ext.pngmath',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
