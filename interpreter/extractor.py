@@ -1,4 +1,26 @@
-# Considers personal pronouns as nouns as long as any type of tagged noun (proper noun, etc.)
+def is_direction(word):
+    """
+    Checks if a ``word`` represents a direction.
+
+    The word is checked against a hard-coded list of directional words. If there is a match, then the ``word`` is determined to be a directional word. This function is present to provide a space to make this operation more robust in the future.
+
+    Args:
+        word (str): The word to be checked
+    
+    Returns:
+        bool: ``True`` if the ``word`` represents a directional word, ``False`` if not
+    """
+    # Words that can be interpreted as a direction - for use with the move and turn object extractors
+    directional_words = ["left", "right", "up", "down", "forward", "backward"]
+
+    for direction in directional_words:
+        if word.lower() == direction:
+            return True
+
+    return False
+
+
+
 def is_noun(tag):
     """
     Checks if a part of speech tag represents a noun. The tags ``"PRP"`` and those that begin with ``"NN"`` are considered nouns.
@@ -9,10 +31,9 @@ def is_noun(tag):
     Returns:
         bool: ``True`` if the tag represents a noun, ``False`` if not
     """
+    # Considers personal pronouns as nouns as long as any type of tagged noun (proper noun, etc.)
     return (tag == "PRP" or tag.startswith("NN"))
 
-# IN is the general preposition tag, but the word "to" has its own TO tag whenever it is being used as a preposition
-# The distinction between words tagged as TO and those tagged as IN is not important to interpretation with the basic rules right now
 def is_preposition(tag):
     """
     Checks if a part of speech tag represents a preposition. The tags ``"TO"`` and ``"IN"`` considered to be prepositions.
@@ -23,6 +44,7 @@ def is_preposition(tag):
     Returns:
         bool: ``True`` if the tag represents a preposition, ``False`` if not
     """
+    # IN is the general preposition tag, but the word "to" has its own TO tag whenever it is being used as a preposition
     return (tag == "TO" or tag == "IN")
 
 def object_dict_follow(sent):
@@ -112,14 +134,11 @@ def object_dict_move(sent):
     prep_found = False
 
     for token in sent:
-        if is_preposition(token[1]):
-            prep_found = True
+        # The directional words tend to be tagged as one of these three parts of speech
+        if (token[1] == "VBD" or token[1] == "NN" or token[1] == "IN") and (is_direction(token[0])):
+            object_dict["direction"] = token[0]
         elif is_noun(token[1]):
-            if prep_found:
-                obj_tag = "place"
-            else:
-                obj_tag = "direction"
-            object_dict[obj_tag] = token[0]
+            object_dict["place"] = token[0]
 
     return object_dict
 

@@ -104,8 +104,8 @@ def generate_object_dict(sent, action_tuple, object_extractor_functions):
     tagged_sent = nltk.pos_tag(sent)
 
     # Output for debugging
-    """print "Tagged sentence:"
-    print tagged_sent"""
+    print "Tagged sentence:"
+    print tagged_sent
 
     # Remove the main action from the sentence - it does not need to be considered when extracting objects
     # If problems occur later down the road, maybe get rid of the action and everything behind it as well
@@ -214,10 +214,10 @@ def test_sent(sent_text):
     return generate_json(action_tuple[0], object_dict)
     print "\n"
 
-"""res = build_action_structures("known_actions.txt")
+res = build_action_structures("known_actions.txt")
 known_actions = res[0]
 object_extractor_functions = res[1]
-
+"""
 print str(known_actions)
 print str(object_extractor_functions)
 print str(test_sent("Blorggdfslgk me to play tennis"))"""
