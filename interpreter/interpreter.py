@@ -217,15 +217,8 @@ def interpret_sent(sent_text):
     return generate_json(action_tuple[0], object_dict)
     print "\n"
 
-def build_sem_sim_structure(filename):
-    """
-    Sem sim module will generate the file, and this function will build the structure according to the file
-    The format of each element of these lists will be: (unknown_word, known_word)
-    """
-
 # When imported, this module builds the structures needed to interpret commands
 res = build_action_structures("interpreter/new_known_actions.txt")
 known_actions = res[0]
 object_extractor_functions = res[1]
 first_actions = res[2]
-print first_actions

@@ -73,9 +73,9 @@ def object_dict_follow(sent):
         if is_noun(token[1]):
             # The current length of object_dict shows how many other nouns have been extracted from the sentence
             if len(object_dict) == 0:
-                object_dict["person"] = token[0]
+                object_dict["person"] = token[0].lower()
             elif len(object_dict) == 1:
-                object_dict["place"] = token[0]
+                object_dict["place"] = token[0].lower()
 
     return object_dict
 
@@ -136,9 +136,9 @@ def object_dict_move(sent):
     for token in sent:
         # The directional words tend to be tagged as one of these four parts of speech
         if (token[1] == "VBD" or token[1] == "NN" or token[1] == "IN" or token[1] == "RB") and (is_direction(token[0])):
-            object_dict["direction"] = token[0]
+            object_dict["direction"] = token[0].lower()
         elif is_noun(token[1]):
-            object_dict["place"] = token[0]
+            object_dict["place"] = token[0].lower()
 
     return object_dict
 
@@ -178,14 +178,14 @@ def object_dict_talk(sent):
 
         if is_noun(token[1]):
             if prep_found and not about_found:
-                object_dict["person"] = token[0]
+                object_dict["person"] = token[0].lower()
                 prep_found = False
             elif about_found and not prep_found:
-                object_dict["topic"] = token[0]
+                object_dict["topic"] = token[0].lower()
                 about_found = False
             else:
                 obj_tag = "unknown"
-                object_dict["unknown"] = token[0]
+                object_dict["unknown"] = token[0].lower()
 
     return object_dict
 
@@ -224,18 +224,92 @@ def object_dict_show(sent):
             prec_found = True
         elif is_noun(token[1]):
             if prec_found:
-                object_dict["object"] = token[0]
+                object_dict["object"] = token[0].lower()
             else:
-                object_dict["person"] = token[0]
+                object_dict["person"] = token[0].lower()
         elif token[1] ==  "VB":
             if to_found:
-                object_dict["show_action"] = token[0]
+                object_dict["show_action"] = token[0].lower()
                 prec_found = True
 
+    print object_dict
+
+    if "object" in object_dict:
+        search_res = binary_search_shown_words(object_dict["object"], known_shown_objects)
+        if search_res > -1:
+            object_dict["object"] = first_shown_objects[search_res]
+
     if "show_action" in object_dict:
+
+        search_res = binary_search_shown_words(object_dict["show_action"], known_shown_actions)
+        if search_res > -1:
+            object_dict["show_action"] = first_shown_actions[search_res]
+
         video_title = object_dict["show_action"]
         if "object" in object_dict:
             video_title = video_title + "-" + object_dict["object"]
-        object_dict["video_title"] = video_title
+        object_dict["video_title"] = video_title.lower()
 
     return object_dict
+
+def build_shown_words(filename):
+    # Initializing data structures
+    known_words = []
+    first_words = []
+    line_num = 0
+
+    # Start reading input file of known actions
+    inp_file = open(filename, "rb")
+    for line in inp_file:
+        line = line.strip().lower()
+        # Checks to make sure the line isn't an empty string after trimming whitespace
+        # Blank lines are ignored completely
+        if line:
+            words = line.split(",")
+            # Checks to make sure there is at least one action, avoid exception
+            if len(words) > 0:
+                try:
+                    first_words.append(words[0])
+                    for word in words:
+                        word = word.strip()
+                        # Add each known action and its action set index to the list to be returned
+                        known_words.append((word, line_num))
+                    line_num += 1
+                except AttributeError: # Occurs if getattr fails
+                    print "Error: There is no object extraction function called " + func_name
+                except StandardError as err: # Catches any other error
+                    print str(err)
+
+    # Sorts the list of known actions by A-Z alphabetical order
+    known_words = sorted(known_words, key=lambda tup: tup[0])
+
+    return (known_words, first_words)
+
+def binary_search_shown_words(target, pool):
+
+    # If the search pool has been exhausted, the target is not in the pool
+    if (len(pool) == 0):
+        return -1
+
+    # Gets middle index of the remaining pool
+    mid = len(pool)/2
+
+    if target < pool[mid][0]: # Target must be in lower half of pool
+        return binary_search_shown_words(target, pool[:mid])
+    elif target > pool[mid][0]: # Target must be in higher half of pool
+        return binary_search_shown_words(target, pool[mid+1:])
+    else: # Match has been found
+        return pool[mid][1]
+
+shown_action_res = build_shown_words("interpreter/new_known_shown_actions.txt")
+shown_object_res = build_shown_words("interpreter/shown_objects.txt")
+
+known_shown_actions = sorted(shown_action_res[0], key=lambda tup: tup[0])
+first_shown_actions = shown_action_res[1]
+
+known_shown_objects = sorted(shown_object_res[0], key=lambda tup: tup[0])
+first_shown_objects = shown_object_res[1]
+
+print known_shown_objects
+print first_shown_objects
+print binary_search_shown_words("hands", known_shown_objects)

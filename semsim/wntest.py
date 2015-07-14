@@ -2,7 +2,7 @@
 from nltk.corpus import wordnet as wn
 import csv
 
-def build_known_file(known_words_filename, unknown_words_filename, synset_csv_filename, **kwargs):
+def build_known_file(known_words_filename, unknown_words_filename, synset_csv_filename, output_filename, **kwargs):
     # Build needed data structures
     known_words_file = open(known_words_filename, "rb")
 
@@ -112,7 +112,7 @@ def build_known_file(known_words_filename, unknown_words_filename, synset_csv_fi
     first_word_list = [k_tup[0] for k_tup in sorted(first_word_list, key=lambda tup: tup[1])]
     print first_word_list
 
-    out_file = open("new_known_words_output.txt", "wb")
+    out_file = open(output_filename, "wb")
     current_line = -1
     for word_tuple in final_word_list:
         # Whenever the current line is not the line that the current word needs to go in, start a new line with the appropriate first word

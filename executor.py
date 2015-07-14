@@ -23,11 +23,25 @@ while True:
         res = {'error': 'exception occurred during interpretation'}
         print str(e)
 
+    # Based on the action and any other parameters, sends a command to LILI master control
     if 'error' not in res:
-        if res['action'] == "move" and 'direction' in res:
-            print res['direction'] + "Wave"
-        if res['action'] == "show" and 'video_title' in res:
-            command = '/Applications/VLC.app/Contents/MacOS/VLC --play-and-exit ./videos/' + res['video_title'] + '.mov'
-            print command
-            call(command , shell=True)
+        if res['action'] == "move":
+            if "direction" in res and (res["direction"] == "left" or res["direction"] == "right"):
+                print res['direction'] + "Wave"
+        elif res["action"] == "turn":
+            print "turnAround"
+        elif res["action"] == "stop":
+            print "stop"
+        elif res["action"] == "follow":
+            print "follow"
+        elif res["action"] == "show":
+            if "video_title" in res:
+                command = '/Applications/VLC.app/Contents/MacOS/VLC --play-and-exit ./videos/' + res['video_title'] + '.mp4'
+                print command
+                call(command , shell=True)
+            elif "object" in res:
+                command = '/Applications/VLC.app/Contents/MacOS/VLC --play-and-exit ./images/' + res['object'] + '.jpg'
+                print command
+                call(command , shell=True)
+        # LILI master control has no actual actions for talking to the user, so when that action is detected, nothing is sent to the master control
 
