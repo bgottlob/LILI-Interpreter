@@ -2,6 +2,133 @@
 from nltk.corpus import wordnet as wn
 import csv
 
+def build_known_file(known_words_filename, unknown_words_filename, synset_csv_filename, **kwargs):
+    # Build needed data structures
+    known_words_file = open(known_words_filename, "rb")
+
+    known_words_dict = {}
+    final_word_list = []
+
+    # Process known words file to build the two structures
+    line_num = 0
+    for line in known_words_file:
+        line = line.strip().lower()
+        # Checks to make sure line isn't blank
+        if line:
+            known_words = line.split(",")
+            # Checks to make sure there is at least one action to avoid exception
+            if len(known_words) > 0:
+                # Add the first action and its action set index to the dictionary to speed up lookups
+                # The second value in this tuple will be replaced by the correct synset when the synset file is processed
+                known_words_dict[known_words[0].strip()] = (line_num, "synset not found")
+                for known_word in known_words[1:]:
+                    known_word = known_word.strip()
+                    # Add each known word to the final word list - don't add the first known word in the line to this, since it is already stored in the dictionary
+                    final_word_list.append((known_word, line_num))
+                line_num += 1
+
+    # Process the file of synsets
+    with open(synset_csv_filename, "rb") as synset_file:
+        synset_file_reader = csv.reader(synset_file)
+        # Assuming first line in CSV file is a header, so skip it
+        next(synset_file_reader, None)
+        for row in synset_file_reader:
+            # Change the known word tuple's synset value
+            known_words_dict[row[0].lower()] = (known_words_dict[row[0].lower()][0], row[1])
+
+    unknown_words_file = open(unknown_words_filename, "rb")
+
+    # Process unknown words and map them to known ones
+    for line in unknown_words_file:
+        unknown_word = line.strip().lower()
+
+        if unknown_word:
+
+            max_sem_sim_score = -1 # If words are not semantically similar, this value will not be changed
+            max_unknown_synset = None
+            max_known_synset = None
+            known_choice = "No match found"
+            match_found = False
+
+            for known, known_tuple in known_words_dict.iteritems():
+
+                known_line_num = known_tuple[0]
+                known_synset = wn.synset(known_tuple[1])
+
+                # If the unknown word is a lemma of the known sysnset, then the unknown word is a synonym
+                if unknown_word in known_synset.lemma_names():
+                    sem_sim_score = 1
+
+                    if sem_sim_score > max_sem_sim_score:
+
+                        max_sem_sim_score = sem_sim_score
+                        match_line_num = known_line_num
+                        match_found = True
+
+                else:
+                    # Check if the pos argument has been provided
+                    if 'pos' in kwargs:
+                        pos = kwargs['pos']
+                    else:
+                        pos = "none"
+
+                    if pos.lower() == "verb":
+                        unknown_synsets = wn.synsets(unknown_word, wn.VERB)
+                    elif pos.lower() == "noun":
+                        unknown_synsets = wn.synsets(unknown_word, wn.NOUN)
+                    elif pos.lower() == "adj":
+                        unknown_synsets = wn.synsets(unknown_word, wn.ADJ)
+                    elif pos.lower() == "adv":
+                        unknown_synsets = wn.synsets(unknown_word, wn.ADV)
+                    else:
+                        unknown_synsets = wn.synsets(unknown_word)
+
+                    for unknown_synset in unknown_synsets:
+
+                        sem_sim_score = unknown_synset.path_similarity(known_synset)
+
+                        if sem_sim_score > max_sem_sim_score:
+
+                            max_sem_sim_score = sem_sim_score
+                            match_line_num = known_line_num
+                            match_found = True
+
+            # If a match was found, then add the unknown word to the final word list
+            if match_found:
+                final_word_list.append((unknown_word, match_line_num))
+
+
+    # The final word list has been built, so put all matching words into the input file at specified lines
+
+    # Sort the final word list by line number, so each word can be written in sequence
+    final_word_list = sorted(final_word_list, key=lambda tup: tup[1])
+
+    # Create a list of the actions that will be placed first in each line - these are the previously known words
+    first_word_list = []
+    for known, known_tuple in known_words_dict.iteritems():
+        first_word_list.append((known, known_tuple[0]))
+    print first_word_list
+    # Sort by the known word's line number and put only the actual word into the first action list
+    first_word_list = [k_tup[0] for k_tup in sorted(first_word_list, key=lambda tup: tup[1])]
+    print first_word_list
+
+    out_file = open("new_known_words_output.txt", "wb")
+    current_line = -1
+    for word_tuple in final_word_list:
+        # Whenever the current line is not the line that the current word needs to go in, start a new line with the appropriate first word
+        while not current_line == word_tuple[1]:
+            # Must write to a new line
+            current_line += 1
+            # Start a new line if this isn't the first line of the file
+            if not current_line == 0:
+                out_file.write("\n")
+            # Write the known action to be the first action of the line
+            out_file.write(first_word_list[current_line])
+
+        # Now that the current line is the line the current word needs to go on, write the current word
+        out_file.write("," + word_tuple[0])
+
+
 def sem_sim_test2(known_words_filename, unknown_words_filename, **kwargs):
     """
     Tests semantic similarity mapping from unknown words to known words. Synsets of the unknown words are not known in advance and those of the known words are determined in advance.

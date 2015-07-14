@@ -6,7 +6,7 @@ def is_direction(word):
 
     Args:
         word (str): The word to be checked
-    
+
     Returns:
         bool: ``True`` if the ``word`` represents a directional word, ``False`` if not
     """
@@ -134,8 +134,8 @@ def object_dict_move(sent):
     prep_found = False
 
     for token in sent:
-        # The directional words tend to be tagged as one of these three parts of speech
-        if (token[1] == "VBD" or token[1] == "NN" or token[1] == "IN") and (is_direction(token[0])):
+        # The directional words tend to be tagged as one of these four parts of speech
+        if (token[1] == "VBD" or token[1] == "NN" or token[1] == "IN" or token[1] == "RB") and (is_direction(token[0])):
             object_dict["direction"] = token[0]
         elif is_noun(token[1]):
             object_dict["place"] = token[0]
@@ -232,7 +232,10 @@ def object_dict_show(sent):
                 object_dict["show_action"] = token[0]
                 prec_found = True
 
-    if to_found:
-        object_dict["video_title"] = object_dict["show_action"] + "-" + object_dict["object"]
+    if "show_action" in object_dict:
+        video_title = object_dict["show_action"]
+        if "object" in object_dict:
+            video_title = video_title + "-" + object_dict["object"]
+        object_dict["video_title"] = video_title
 
     return object_dict

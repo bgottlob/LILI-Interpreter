@@ -132,12 +132,13 @@ def generate_json(action, object_dict):
     """
 
     result = object_dict
-    result["action"] = action
+    result["action"] = first_actions[action]
     return result
     #return json.dumps(result)
 
 def build_action_structures(filename):
     """
+    MUST UPDATE FOR CREATING THE LIST OF FIRST ACTIONS
     Given a filename that contains a list of known :ref:`actions <action>`, generates the data structures needed to interpret commands.
 
     Opens a file of known actions, where each action set is represented on one line (see :ref:`this part of the interpreter demo <initial-setup>` for details on the input file). For each word in this file, a tuple *(str, int)* is generated that contains that word along with its :ref:`action set index <action-set-index>`. This tuple is then appended to the list of known actions. This list is sorted by A-Z order before it is returned to prepare it for binary search operations.
@@ -160,6 +161,7 @@ def build_action_structures(filename):
     # Initializing data structures
     known_actions = []
     object_dict_functions = []
+    first_actions = []
     line_num = 0
 
     # Start reading input file of known actions
@@ -176,6 +178,7 @@ def build_action_structures(filename):
                 try:
                     # Gets the corresponding object extractor function from the extractor module and adds it to the list to be returned
                     object_dict_functions.append(getattr(extractor, func_name))
+                    first_actions.append(actions[0])
                     for action in actions:
                         action = action.strip()
                         # Add each known action and its action set index to the list to be returned
@@ -189,9 +192,9 @@ def build_action_structures(filename):
     # Sorts the list of known actions by A-Z alphabetical order
     known_actions = sorted(known_actions, key=lambda tup: tup[0])
 
-    return (known_actions, object_dict_functions)
+    return (known_actions, object_dict_functions, first_actions)
 
-def test_sent(sent_text):
+def interpret_sent(sent_text):
     """
     Implements the order of execution (pipeline) of interpreting a sentence - utilized for checking test cases
     """
@@ -214,10 +217,15 @@ def test_sent(sent_text):
     return generate_json(action_tuple[0], object_dict)
     print "\n"
 
-res = build_action_structures("known_actions.txt")
+def build_sem_sim_structure(filename):
+    """
+    Sem sim module will generate the file, and this function will build the structure according to the file
+    The format of each element of these lists will be: (unknown_word, known_word)
+    """
+
+# When imported, this module builds the structures needed to interpret commands
+res = build_action_structures("interpreter/new_known_actions.txt")
 known_actions = res[0]
 object_extractor_functions = res[1]
-"""
-print str(known_actions)
-print str(object_extractor_functions)
-print str(test_sent("Blorggdfslgk me to play tennis"))"""
+first_actions = res[2]
+print first_actions
