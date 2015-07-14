@@ -1,0 +1,8 @@
+wash,clean,rinse
+roll
+kick
+throw
+share
+fold
+lock,secure
+dougie,dance

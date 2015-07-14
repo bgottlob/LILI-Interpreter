@@ -2,6 +2,10 @@ import speech_recognition as sr
 import interpreter.interpreter as interp
 import webbrowser
 from subprocess import call
+import os
+
+# Path for Mac
+vlc_path = "/Applications/VLC.app/Contents/MacOS/VLC"
 
 while True:
     """
@@ -28,6 +32,8 @@ while True:
         if res['action'] == "move":
             if "direction" in res and (res["direction"] == "left" or res["direction"] == "right"):
                 print res['direction'] + "Wave"
+            else:
+                print "Unknown direction"
         elif res["action"] == "turn":
             print "turnAround"
         elif res["action"] == "stop":
@@ -35,13 +41,24 @@ while True:
         elif res["action"] == "follow":
             print "follow"
         elif res["action"] == "show":
+
             if "video_title" in res:
-                command = '/Applications/VLC.app/Contents/MacOS/VLC --play-and-exit ./videos/' + res['video_title'] + '.mp4'
-                print command
-                call(command , shell=True)
+                video_path = "./videos/" + res["video_title"] + ".mp4"
+                if os.path.exists(video_path):
+                    command = vlc_path + " --play-and-exit " + video_path
+                    print command
+                    call(command , shell=True)
+                else:
+                    print "Video " + video_path + " not found!"
+
             elif "object" in res:
-                command = '/Applications/VLC.app/Contents/MacOS/VLC --play-and-exit ./images/' + res['object'] + '.jpg'
-                print command
-                call(command , shell=True)
+                img_path = "./images/" + res["object"] + ".jpg"
+                if os.path.exists(img_path):
+                    command = vlc_path + " --play-and-exit " + img_path
+                    print command
+                    call(command , shell=True)
+                else:
+                    print "Image " + img_path + " not found!"
+
         # LILI master control has no actual actions for talking to the user, so when that action is detected, nothing is sent to the master control
 

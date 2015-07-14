@@ -301,15 +301,12 @@ def binary_search_shown_words(target, pool):
     else: # Match has been found
         return pool[mid][1]
 
-shown_action_res = build_shown_words("interpreter/new_known_shown_actions.txt")
-shown_object_res = build_shown_words("interpreter/shown_objects.txt")
+# Builds synonym lists that are utilized when resolving shown actions and objects to words that are already known by LILI
+shown_action_res = build_shown_words("input_files/known_words/known_shown_actions_small.txt")
+shown_object_res = build_shown_words("input_files/known_words/shown_objects_small.txt")
 
 known_shown_actions = sorted(shown_action_res[0], key=lambda tup: tup[0])
 first_shown_actions = shown_action_res[1]
 
 known_shown_objects = sorted(shown_object_res[0], key=lambda tup: tup[0])
 first_shown_objects = shown_object_res[1]
-
-print known_shown_objects
-print first_shown_objects
-print binary_search_shown_words("hands", known_shown_objects)

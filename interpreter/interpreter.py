@@ -48,6 +48,7 @@ def extract_action(sent, known_actions):
         search_res = binary_search_actions(token, known_actions)
         if search_res > -1:
             return (search_res, token_index)
+        token_index += 1
     # If no main action is found, return (-1,0)
     return (-1, 0)
 
@@ -100,6 +101,12 @@ def generate_object_dict(sent, action_tuple, object_extractor_functions):
         dict: An object dictionary for the command
     """
 
+    # Remove the main action from the sentence - it does not need to be considered when extracting objects
+    # Gets rid of the action and everything behind it as well
+    # Can't think of any important text that could come before the main action
+    print action_tuple[1]
+    sent = sent[action_tuple[1]+1:]
+
     # Tag the sentence with parts of speech
     tagged_sent = nltk.pos_tag(sent)
 
@@ -107,13 +114,8 @@ def generate_object_dict(sent, action_tuple, object_extractor_functions):
     print "Tagged sentence:"
     print tagged_sent
 
-    # Remove the main action from the sentence - it does not need to be considered when extracting objects
-    # If problems occur later down the road, maybe get rid of the action and everything behind it as well
-    # Can't think of any important text that could come before the main action
-    trimmed_sent = tagged_sent[:action_tuple[1]] + tagged_sent[action_tuple[1]+1:]
-
     # Call the main action's corresponding function extractor
-    object_dict = object_extractor_functions[action_tuple[0]](trimmed_sent)
+    object_dict = object_extractor_functions[action_tuple[0]](tagged_sent)
 
     return object_dict
 
@@ -218,7 +220,7 @@ def interpret_sent(sent_text):
     print "\n"
 
 # When imported, this module builds the structures needed to interpret commands
-res = build_action_structures("interpreter/new_known_actions.txt")
+res = build_action_structures("input_files/known_words/known_actions_small.txt")
 known_actions = res[0]
 object_extractor_functions = res[1]
 first_actions = res[2]
