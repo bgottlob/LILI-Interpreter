@@ -232,8 +232,6 @@ def object_dict_show(sent):
                 object_dict["show_action"] = token[0].lower()
                 prec_found = True
 
-    print object_dict
-
     if "object" in object_dict:
         search_res = binary_search_shown_words(object_dict["object"], known_shown_objects)
         if search_res > -1:
@@ -276,9 +274,9 @@ def build_shown_words(filename):
                         known_words.append((word, line_num))
                     line_num += 1
                 except AttributeError: # Occurs if getattr fails
-                    print "Error: There is no object extraction function called " + func_name
+                    sys.stderr.write("Error: There is no object extraction function called " + func_name + "\n")
                 except StandardError as err: # Catches any other error
-                    print str(err)
+                    sys.stderr.write(str(err) + "\n")
 
     # Sorts the list of known actions by A-Z alphabetical order
     known_words = sorted(known_words, key=lambda tup: tup[0])

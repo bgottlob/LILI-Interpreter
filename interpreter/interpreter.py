@@ -1,6 +1,7 @@
 import nltk
 import json
 import extractor
+import sys
 
 # Perform any preprocessing tasks on the text - currently only tokenizes text
 def preprocess_text(text):
@@ -101,18 +102,21 @@ def generate_object_dict(sent, action_tuple, object_extractor_functions):
         dict: An object dictionary for the command
     """
 
-    # Remove the main action from the sentence - it does not need to be considered when extracting objects
-    # Gets rid of the action and everything behind it as well
-    # Can't think of any important text that could come before the main action
-    print action_tuple[1]
-    sent = sent[action_tuple[1]+1:]
-
     # Tag the sentence with parts of speech
     tagged_sent = nltk.pos_tag(sent)
 
     # Output for debugging
-    print "Tagged sentence:"
-    print tagged_sent
+    sys.stderr.write("Tagged sentence:\n")
+    sys.stderr.write(tagged_sent + "\n")
+
+    # Remove the main action from the sentence - it does not need to be considered when extracting objects
+    # Gets rid of the action and everything behind it as well
+    # Can't think of any important text that could come before the main action
+    tagged_sent = tagged_sent[action_tuple[1]+1:]
+
+    # Output for debugging
+    sys.stderr.write("Trimmed sentence:\n")
+    sys.stderr.write(tagged_sent + "\n")
 
     # Call the main action's corresponding function extractor
     object_dict = object_extractor_functions[action_tuple[0]](tagged_sent)
@@ -187,9 +191,9 @@ def build_action_structures(filename):
                         known_actions.append((action, line_num))
                     line_num += 1
                 except AttributeError: # Occurs if getattr fails
-                    print "Error: There is no object extraction function called " + func_name
+                    sys.stderr.write("Error: There is no object extraction function called " + func_name + "\n")
                 except StandardError as err: # Catches any other error
-                    print str(err)
+                    sys.stderr.write(str(err) + "\n")
 
     # Sorts the list of known actions by A-Z alphabetical order
     known_actions = sorted(known_actions, key=lambda tup: tup[0])
@@ -200,11 +204,11 @@ def interpret_sent(sent_text):
     """
     Implements the order of execution (pipeline) of interpreting a sentence - utilized for checking test cases
     """
-    print "Preprocessing this sentence:"
-    print sent_text
+    sys.stderr.write("Preprocessing this sentence:\n")
+    sys.stderr.write(sent_text + "\n")
     sent = preprocess_text(sent_text)
-    print "Tokenized:"
-    print sent
+    sys.stderr.write("Tokenized:\n")
+    sys.stderr.write(sent + "\n")
     action_tuple = extract_action(sent, known_actions)
 
     # If this occurred, the action was not recognized
@@ -213,11 +217,11 @@ def interpret_sent(sent_text):
         #return json.dumps(error_dict)
         return error_dict
 
-    print "Action Tuple:"
-    print action_tuple
+    sys.stderr.write("Action Tuple:\n")
+    sys.stderr.write(action_tuple + "\n")
     object_dict = generate_object_dict(sent, action_tuple, object_extractor_functions)
     return generate_json(action_tuple[0], object_dict)
-    print "\n"
+    sys.stderr.write("\n")
 
 # When imported, this module builds the structures needed to interpret commands
 res = build_action_structures("input_files/known_words/known_actions_small.txt")
