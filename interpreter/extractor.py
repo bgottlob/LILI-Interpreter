@@ -320,6 +320,7 @@ def binary_search_shown_words(target, pool):
 shown_actions_path = ""
 objects_path = ""
 if "lili-interpreter" in os.listdir("."):
+    print os.listdir(".")
     shown_actions_path = "lili-interpreter/"
     objects_path = "lili-interpreter/"
 
@@ -328,8 +329,8 @@ objects_path = objects_path + "input_files/known_words/shown_objects_small.txt"
 
 
 # Builds synonym lists that are utilized when resolving shown actions and objects to words that are already known by LILI
-shown_action_res = build_shown_words("lili-interpreter/input_files/known_words/known_shown_actions_small.txt")
-shown_object_res = build_shown_words("lili-interpreter/input_files/known_words/shown_objects_small.txt")
+shown_action_res = build_shown_words(shown_actions_path)
+shown_object_res = build_shown_words(objects_path)
 
 known_shown_actions = sorted(shown_action_res[0], key=lambda tup: tup[0])
 first_shown_actions = shown_action_res[1]
