@@ -1,7 +1,7 @@
+import os
 import speech_recognition as sr
 import interpreter.interpreter as interp
 from subprocess import call
-import os
 import sys
 import IPC
 import time

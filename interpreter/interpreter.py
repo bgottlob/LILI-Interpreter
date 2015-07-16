@@ -2,6 +2,7 @@ import nltk
 import json
 import extractor
 import sys
+import os
 
 # Perform any preprocessing tasks on the text - currently only tokenizes text
 def preprocess_text(text):
@@ -224,8 +225,14 @@ def interpret_sent(sent_text):
     return generate_json(action_tuple[0], object_dict)
     sys.stderr.write("\n")
 
+actions_path = ""
+if "lili-interpreter" in os.listdir("."):
+    actions_path = "lili-interpreter/"
+
+actions_path = actions_path + "input_files/known_words/known_actions_small.txt"
+
 # When imported, this module builds the structures needed to interpret commands
-res = build_action_structures("input_files/known_words/known_actions_small.txt")
+res = build_action_structures(actions_path)
 known_actions = res[0]
 object_extractor_functions = res[1]
 first_actions = res[2]
