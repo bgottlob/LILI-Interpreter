@@ -1,3 +1,5 @@
+from nltk.stem.snowball import SnowballStemmer
+
 def is_direction(word):
     """
     Checks if a ``word`` represents a direction.
@@ -232,16 +234,31 @@ def object_dict_show(sent):
                 object_dict["show_action"] = token[0].lower()
                 prec_found = True
 
+    # Create the stemmer to get root words if needed
+    stemmer = SnowballStemmer("english")
     if "object" in object_dict:
         search_res = binary_search_shown_words(object_dict["object"], known_shown_objects)
         if search_res > -1:
             object_dict["object"] = first_shown_objects[search_res]
+        else:
+            # If the object word wasn't found, try looking for its stem
+            stem = stemmer.stem(object_dict["object"])
+            search_res = binary_search_shown_words(stem, known_shown_objects)
+            if search_res > -1:
+                object_dict["object"] = first_shown_objects[search_res]
+
 
     if "show_action" in object_dict:
 
         search_res = binary_search_shown_words(object_dict["show_action"], known_shown_actions)
         if search_res > -1:
             object_dict["show_action"] = first_shown_actions[search_res]
+        else:
+            # If the show action word wasn't found, try looking for its stem
+            stem = stemmer.stem(object_dict["show_action"])
+            search_res = binary_search_shown_words(stem, known_shown_actions)
+            if search_res > -1:
+                object_dict["show_action"] = first_shown_actions[search_res]
 
         video_title = object_dict["show_action"]
         if "object" in object_dict:

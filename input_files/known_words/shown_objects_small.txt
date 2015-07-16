@@ -6,5 +6,5 @@ chair,seat
 television,tv
 ball,sphere
 toy
-hands
+hand
 door

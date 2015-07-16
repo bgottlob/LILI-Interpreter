@@ -1,0 +1,12 @@
+\select@language {english}
+\contentsline {chapter}{\numberline {1}wntest module}{3}{chapter.1}
+\contentsline {chapter}{\numberline {2}interpreter module}{7}{chapter.2}
+\contentsline {chapter}{\numberline {3}interpreter module demo}{11}{chapter.3}
+\contentsline {section}{\numberline {3.1}Initial Setup}{11}{section.3.1}
+\contentsline {section}{\numberline {3.2}Preprocessing and Action Detection}{12}{section.3.2}
+\contentsline {section}{\numberline {3.3}Extracting Objects from the Command}{12}{section.3.3}
+\contentsline {chapter}{\numberline {4}extractor module}{15}{chapter.4}
+\contentsline {chapter}{\numberline {5}Terminology}{17}{chapter.5}
+\contentsline {chapter}{\numberline {6}Indices and tables}{19}{chapter.6}
+\contentsline {chapter}{Python Module Index}{21}{section*.36}
+\contentsline {chapter}{Index}{23}{section*.37}

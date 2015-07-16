@@ -20,6 +20,7 @@ def preprocess_text(text):
         Do not do any part of speech tagging in this function. It is a compute-intensive task and may not be needed for all commands (i.e. erroneous situations).
     """
     res = nltk.word_tokenize(text)
+    sys.stderr.write(str(res) + "\n")
     return res
 
 def extract_action(sent, known_actions):
@@ -107,7 +108,7 @@ def generate_object_dict(sent, action_tuple, object_extractor_functions):
 
     # Output for debugging
     sys.stderr.write("Tagged sentence:\n")
-    sys.stderr.write(tagged_sent + "\n")
+    sys.stderr.write(str(tagged_sent) + "\n")
 
     # Remove the main action from the sentence - it does not need to be considered when extracting objects
     # Gets rid of the action and everything behind it as well
@@ -116,7 +117,7 @@ def generate_object_dict(sent, action_tuple, object_extractor_functions):
 
     # Output for debugging
     sys.stderr.write("Trimmed sentence:\n")
-    sys.stderr.write(tagged_sent + "\n")
+    sys.stderr.write(str(tagged_sent) + "\n")
 
     # Call the main action's corresponding function extractor
     object_dict = object_extractor_functions[action_tuple[0]](tagged_sent)
@@ -208,7 +209,7 @@ def interpret_sent(sent_text):
     sys.stderr.write(sent_text + "\n")
     sent = preprocess_text(sent_text)
     sys.stderr.write("Tokenized:\n")
-    sys.stderr.write(sent + "\n")
+    sys.stderr.write(str(sent) + "\n")
     action_tuple = extract_action(sent, known_actions)
 
     # If this occurred, the action was not recognized
@@ -218,7 +219,7 @@ def interpret_sent(sent_text):
         return error_dict
 
     sys.stderr.write("Action Tuple:\n")
-    sys.stderr.write(action_tuple + "\n")
+    sys.stderr.write(str(action_tuple) + "\n")
     object_dict = generate_object_dict(sent, action_tuple, object_extractor_functions)
     return generate_json(action_tuple[0], object_dict)
     sys.stderr.write("\n")

@@ -3,11 +3,10 @@ import interpreter.interpreter as interp
 from subprocess import call
 import os
 import sys
-# Commented out for demonstration
-# import IPC
+import IPC
 import time
 
-is_windows = False
+is_windows = True
 
 if is_windows:
     # Path for Windows
@@ -16,10 +15,7 @@ else:
     # Path for Mac
     vlc_path = "/Applications/VLC.app/Contents/MacOS/VLC"
 
-# Commented out for standalone demo
-"""
 vm = IPC.process(True, "LILIExecutor.py")
-"""
 
 started = False # Changes once it gets start command from master controller
 lily = False # User must say "Lily" before giving a command
@@ -29,31 +25,30 @@ def runRecognizer():
     if lily:
        sys.stderr.write("LILI is listening\n")
 
-    # Commented out to use standard input instead of speech recognition
-    """
+    # Comment out this with block to use standard input instead of speech recognition
     with sr.Microphone() as source:
         audio = r.adjust_for_ambient_noise(source, duration=1)
         r.energy_threshold = 1000
         sys.stderr.write("Speak now\n")
         audio = r.listen(source)
         sent = "" + r.recognize(audio)
+
+    # Uncomment this to use standard input instead of speech recognition
     """
     sys.stderr.write("Type a sentence:")
     sent = raw_input()
+    """
 
     sent = sent.encode('ascii', 'ignore').lower()
     return sent
 
 # Only used to receive start command
-# Commented out, only needed in collaboration with LILI master control
-"""
 def onReadLine():
     global started
     message = vm.line.strip()
     if message == "start":
         sys.stderr.write("Got start signal\n")
         started = True
-"""
 
 def process_result(res):
     # Based on the action and any other parameters, sends a command to LILI master control
@@ -61,26 +56,21 @@ def process_result(res):
         if res['action'] == "move":
             if "direction" in res and (res["direction"] == "left" or res["direction"] == "right"):
                 command = res['direction'] + "Wave"
-                # vm.write(command + "\n")
-                # This is a print command for demonstration
-                print command
+                vm.write(command + "\n")
                 sys.stderr.write("Sending command to master control: " + command + "\n")
             else:
                 sys.stderr.write("Unknown direction\n")
         elif res["action"] == "turn":
             command = "turnAround"
-            # vm.write(command + "\n")
-            print command
+            vm.write(command + "\n")
             sys.stderr.write("Sending command to master control: " + command + "\n")
         elif res["action"] == "stop":
             command = "stop"
-            # vm.write(command + "\n")
-            print command
+            vm.write(command + "\n")
             sys.stderr.write("Sending command to master control: " + command + "\n")
         elif res["action"] == "follow":
             command = "follow"
-            # vm.write(command + "\n")
-            print command
+            vm.write(command + "\n")
             sys.stderr.write("Sending command to master control: " + command + "\n")
         elif res["action"] == "show":
 
@@ -126,18 +116,12 @@ def process_result(res):
 
         # LILI master control has no actual actions for talking to the user, so when that action is detected, nothing is sent to the master control
 
-# Commented out for demonstration purposes
-"""
 vm.setOnReadLine(onReadLine)
 
 IPC.InitSync()
 while not started:
     vm.tryReadLine()
     IPC.Sync()
-"""
-
-# Added in for demonstration purposes
-started = True
 
 while started:
 
@@ -169,5 +153,4 @@ while started:
         sys.stderr.write("Speech could not be recognized\n")
         sys.stderr.write(str(e) + "\n")
 
-    # Commented out for demonstration purposes
-    # IPC.Sync()
+    IPC.Sync()
