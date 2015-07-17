@@ -320,7 +320,6 @@ def binary_search_shown_words(target, pool):
 shown_actions_path = ""
 objects_path = ""
 if "lili-interpreter" in os.listdir("."):
-    print os.listdir(".")
     shown_actions_path = "lili-interpreter/"
     objects_path = "lili-interpreter/"
 

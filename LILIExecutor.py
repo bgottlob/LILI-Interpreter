@@ -15,7 +15,7 @@ else:
     # Path for Mac
     vlc_path = "/Applications/VLC.app/Contents/MacOS/VLC"
 
-vm = IPC.process(True, "LILIExecutor.py")
+vm = IPC.process(True, ".\lili-interpreter\LILIExecutor.py")
 
 started = False # Changes once it gets start command from master controller
 lily = False # User must say "Lily" before giving a command
@@ -28,11 +28,11 @@ def runRecognizer():
     # Comment out this with block to use standard input instead of speech recognition
     with sr.Microphone() as source:
         audio = r.adjust_for_ambient_noise(source, duration=1)
-        r.energy_threshold = 1000
+        r.energy_threshold = 2146
         sys.stderr.write("Speak now\n")
         audio = r.listen(source)
         sent = "" + r.recognize(audio)
-
+	
     # Uncomment this to use standard input instead of speech recognition
     """
     sys.stderr.write("Type a sentence:")
@@ -75,7 +75,11 @@ def process_result(res):
         elif res["action"] == "show":
 
             if "video_title" in res:
-                video_path = "./videos/" + res["video_title"]
+				
+                if "lili-interpreter" in os.listdir("."):
+                    video_path = "lili-interpreter/"
+                
+                video_path = video_path + "videos/" + res["video_title"]
 
                 if is_windows:
                     # Switches slashes to backslashes (for Windows only)
@@ -95,7 +99,11 @@ def process_result(res):
                     sys.stderr.write("Video named " + video_path + " not found!\n")
 
             elif "object" in res:
-                img_path = "./images/" + res["object"]
+
+                if "lili-interpreter" in os.listdir("."):
+                    img_path = "lili-interpreter/"
+
+                img_path = img_path + "images/" + res["object"]
 
                 if is_windows:
                     # Switches slashes to backslashes (for Windows only)
