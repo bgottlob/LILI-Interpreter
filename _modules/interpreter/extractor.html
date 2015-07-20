@@ -1,0 +1,399 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>interpreter.extractor &mdash; LILI Interpreter 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="LILI Interpreter 1.0 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="../../index.html" class="icon icon-home"> LILI Interpreter
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../wntest.html">wntest module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../interpreter.html">interpreter module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../interpreterdemo.html">interpreter module demo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../interpreterdemo.html#initial-setup">Initial Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../interpreterdemo.html#preprocessing-and-action-detection">Preprocessing and Action Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../interpreterdemo.html#extracting-objects-from-the-command">Extracting Objects from the Command</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../extractor.html">extractor module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../terms.html">Terminology</a></li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">LILI Interpreter</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      
+    <li>interpreter.extractor</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <h1>Source code for interpreter.extractor</h1><div class="highlight"><pre>
+<span class="c"># Considers personal pronouns as nouns as long as any type of tagged noun (proper noun, etc.)</span>
+<div class="viewcode-block" id="is_noun"><a class="viewcode-back" href="../../extractor.html#interpreter.extractor.is_noun">[docs]</a><span class="k">def</span> <span class="nf">is_noun</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks if a part of speech tag represents a noun. The tags ``&quot;PRP&quot;`` and those that begin with ``&quot;NN&quot;`` are considered nouns.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tag (str): The part of speech tag to be checked</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: ``True`` if the tag represents a noun, ``False`` if not</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">tag</span> <span class="o">==</span> <span class="s">&quot;PRP&quot;</span> <span class="ow">or</span> <span class="n">tag</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;NN&quot;</span><span class="p">))</span>
+
+<span class="c"># IN is the general preposition tag, but the word &quot;to&quot; has its own TO tag whenever it is being used as a preposition</span>
+<span class="c"># The distinction between words tagged as TO and those tagged as IN is not important to interpretation with the basic rules right now</span></div>
+<div class="viewcode-block" id="is_preposition"><a class="viewcode-back" href="../../extractor.html#interpreter.extractor.is_preposition">[docs]</a><span class="k">def</span> <span class="nf">is_preposition</span><span class="p">(</span><span class="n">tag</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks if a part of speech tag represents a preposition. The tags ``&quot;TO&quot;`` and ``&quot;IN&quot;`` considered to be prepositions.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        tag (str): The part of speech tag to be checked</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: ``True`` if the tag represents a preposition, ``False`` if not</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">tag</span> <span class="o">==</span> <span class="s">&quot;TO&quot;</span> <span class="ow">or</span> <span class="n">tag</span> <span class="o">==</span> <span class="s">&quot;IN&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="object_dict_follow"><a class="viewcode-back" href="../../extractor.html#interpreter.extractor.object_dict_follow">[docs]</a><span class="k">def</span> <span class="nf">object_dict_follow</span><span class="p">(</span><span class="n">sent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts objects out of a sentence that contains *follow* as its :ref:`action &lt;action&gt;`</span>
+
+<span class="sd">    Rules:</span>
+
+<span class="sd">    1. The first noun encountered is always the *person*</span>
+<span class="sd">    2. The second noun (if included) is always the *place*</span>
+
+<span class="sd">    Objects:</span>
+
+<span class="sd">    1. *person* - The person who will be followed</span>
+<span class="sd">    2. *place* - The location that the person will be followed to</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sent (list): A part of speech tagged list of tokens representing a sentence</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: An :ref:`object dictionary &lt;object-dictionary&gt;` for the command</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">object_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">sent</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_noun</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="c"># The current length of object_dict shows how many other nouns have been extracted from the sentence</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">object_dict</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;person&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">object_dict</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;place&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">object_dict</span>
+</div>
+<div class="viewcode-block" id="object_dict_turn"><a class="viewcode-back" href="../../extractor.html#interpreter.extractor.object_dict_turn">[docs]</a><span class="k">def</span> <span class="nf">object_dict_turn</span><span class="p">(</span><span class="n">sent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts objects out of a sentence that contains *turn* as its :ref:`action &lt;action&gt;`.</span>
+
+<span class="sd">    Currently uses the same rules as :meth:`~interpreter.extractor.object_dict_move`</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sent (list): A part of speech tagged list of tokens representing a sentence</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: An :ref:`object dictionary &lt;object-dictionary&gt;` for the command</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">object_dict_move</span><span class="p">(</span><span class="n">sent</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="object_dict_stop"><a class="viewcode-back" href="../../extractor.html#interpreter.extractor.object_dict_stop">[docs]</a><span class="k">def</span> <span class="nf">object_dict_stop</span><span class="p">(</span><span class="n">sent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts objects out of a sentence that contains *stop* as its :ref:`action &lt;action&gt;`</span>
+
+<span class="sd">    Currently returns an empty dictionary.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sent (list): A part of speech tagged list of tokens representing a sentence</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: An :ref:`object dictionary &lt;object-dictionary&gt;` for the command - currently returns an empty dictionary under all inputs</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{}</span>
+</div>
+<div class="viewcode-block" id="object_dict_move"><a class="viewcode-back" href="../../extractor.html#interpreter.extractor.object_dict_move">[docs]</a><span class="k">def</span> <span class="nf">object_dict_move</span><span class="p">(</span><span class="n">sent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts objects out of a sentence that contains *move* as its :ref:`action &lt;action&gt;`</span>
+
+<span class="sd">    Rules:</span>
+
+<span class="sd">    1. Only the first noun is detected as an object</span>
+<span class="sd">    2. If the first noun is preced by a preposition, then it is the *place*</span>
+<span class="sd">    3. If the first noun is not preceded by a preposition, then it is the *direction*</span>
+
+<span class="sd">    Objects:</span>
+
+<span class="sd">    1. *place* - A location to move to</span>
+<span class="sd">    2. *direction* - A direction to move in</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sent (list): A part of speech tagged list of tokens representing a sentence</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: An :ref:`object dictionary &lt;object-dictionary&gt;` for the command</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">object_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">prep_found</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">sent</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_preposition</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">prep_found</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">elif</span> <span class="n">is_noun</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">prep_found</span><span class="p">:</span>
+                <span class="n">obj_tag</span> <span class="o">=</span> <span class="s">&quot;place&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">obj_tag</span> <span class="o">=</span> <span class="s">&quot;direction&quot;</span>
+            <span class="n">object_dict</span><span class="p">[</span><span class="n">obj_tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">object_dict</span>
+</div>
+<div class="viewcode-block" id="object_dict_talk"><a class="viewcode-back" href="../../extractor.html#interpreter.extractor.object_dict_talk">[docs]</a><span class="k">def</span> <span class="nf">object_dict_talk</span><span class="p">(</span><span class="n">sent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts objects out of a sentence that contains *talk* as its :ref:`action &lt;action&gt;`</span>
+
+<span class="sd">    Rules:</span>
+
+<span class="sd">    1. The noun to come after the word *about* is the *topic*</span>
+<span class="sd">    2. The noun to come after any preposition that is not *about* is the *person*</span>
+<span class="sd">    3. Other nouns will be tagged as *unknown*</span>
+
+<span class="sd">    Objects:</span>
+
+<span class="sd">    1. *person* - The person to talk to</span>
+<span class="sd">    2. *topic* - The subject to talk about</span>
+<span class="sd">    3. *unknown* - The role of this noun is not known</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sent (list): A part of speech tagged list of tokens representing a sentence</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: An :ref:`object dictionary &lt;object-dictionary&gt;` for the command</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">object_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">prep_found</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">about_found</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">sent</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">!=</span> <span class="s">&quot;about&quot;</span> <span class="ow">and</span> <span class="n">is_preposition</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">prep_found</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">elif</span> <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s">&quot;about&quot;</span><span class="p">:</span>
+            <span class="n">about_found</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="k">if</span> <span class="n">is_noun</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">prep_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">about_found</span><span class="p">:</span>
+                <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;person&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">prep_found</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">elif</span> <span class="n">about_found</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">prep_found</span><span class="p">:</span>
+                <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;topic&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">about_found</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">obj_tag</span> <span class="o">=</span> <span class="s">&quot;unknown&quot;</span>
+                <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;unknown&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">object_dict</span>
+</div>
+<div class="viewcode-block" id="object_dict_show"><a class="viewcode-back" href="../../extractor.html#interpreter.extractor.object_dict_show">[docs]</a><span class="k">def</span> <span class="nf">object_dict_show</span><span class="p">(</span><span class="n">sent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extracts objects out of a sentence that contains *show* as its :ref:`action &lt;action&gt;`</span>
+
+<span class="sd">    Rules:</span>
+
+<span class="sd">    1. The verb preceded by a *to* is the *shown_action*</span>
+<span class="sd">    2. The noun that is not preceded by a determiner or *to* is the *person*</span>
+<span class="sd">    3. The noun that is preceded either by a determiner or the *shown_action* is the *object*</span>
+
+<span class="sd">    Objects:</span>
+
+<span class="sd">    1. *shown_action* - The action that will be shown in a video</span>
+<span class="sd">    2. *person* - The person who will be shown the action or object</span>
+<span class="sd">    3. *object* - The object that is acted on in the video or a static object to be shown as a picture</span>
+<span class="sd">    4. *video_title* - The title of the video to be played; it is currently generated by concatentating the *shown_action* with the *object*</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sent (list): A part of speech tagged list of tokens representing a sentence</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: An :ref:`object dictionary &lt;object-dictionary&gt;` for the command</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">object_dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">prec_found</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">to_found</span> <span class="o">=</span> <span class="bp">False</span>
+
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">sent</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;TO&quot;</span><span class="p">:</span>
+            <span class="n">to_found</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">elif</span> <span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s">&quot;DT&quot;</span><span class="p">:</span>
+            <span class="n">prec_found</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">elif</span> <span class="n">is_noun</span><span class="p">(</span><span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">prec_found</span><span class="p">:</span>
+                <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;object&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;person&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">token</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span>  <span class="s">&quot;VB&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">to_found</span><span class="p">:</span>
+                <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;show_action&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">token</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">prec_found</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">if</span> <span class="n">to_found</span><span class="p">:</span>
+        <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;video_title&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;show_action&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span> <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;object&quot;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">object_dict</span></div>
+</pre></div>
+
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Brandon Gottlob.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

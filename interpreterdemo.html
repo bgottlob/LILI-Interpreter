@@ -1,0 +1,300 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>interpreter module demo &mdash; LILI Interpreter 1.0 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="LILI Interpreter 1.0 documentation" href="index.html"/>
+        <link rel="next" title="extractor module" href="extractor.html"/>
+        <link rel="prev" title="interpreter module" href="interpreter.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        
+
+        
+          <a href="index.html" class="icon icon-home"> LILI Interpreter
+        
+
+        
+        </a>
+
+        
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+        
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+          
+          
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="wntest.html">wntest module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interpreter.html">interpreter module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">interpreter module demo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#initial-setup">Initial Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preprocessing-and-action-detection">Preprocessing and Action Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#extracting-objects-from-the-command">Extracting Objects from the Command</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="extractor.html">extractor module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="terms.html">Terminology</a></li>
+</ul>
+
+          
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">LILI Interpreter</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>interpreter module demo</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/interpreterdemo.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document">
+            
+  <div class="section" id="interpreter-module-demo">
+<h1>interpreter module demo<a class="headerlink" href="#interpreter-module-demo" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="initial-setup">
+<span id="id1"></span><h2>Initial Setup<a class="headerlink" href="#initial-setup" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">move</span><span class="p">,</span><span class="n">go</span>
+<span class="n">turn</span><span class="p">,</span><span class="n">twist</span><span class="p">,</span><span class="n">rotate</span>
+<span class="n">stop</span>
+<span class="n">follow</span>
+<span class="n">talk</span><span class="p">,</span><span class="n">speak</span><span class="p">,</span><span class="n">tell</span>
+<span class="n">show</span><span class="p">,</span><span class="n">teach</span>
+</pre></div>
+</div>
+<p>Each line in this input file represents one <a class="reference internal" href="terms.html#action-set"><span>action set</span></a>. All <a class="reference internal" href="terms.html#action"><span>actions</span></a> in an set are recognized as having the same meaning and will be interpreted and executed by LILI in the same exact way. For example, <em>show</em> and <em>teach</em> are considered synonyms since they are in the same action set. Therefore the commands <em>Show me how to wash my hands</em> and <em>Teach me how to wash my hands</em> have the exact same meaning to the interpreter.</p>
+<p>Each action set has an <a class="reference internal" href="terms.html#action-set-index"><span>action set index value</span></a>, which is calculated as the line number the set is found on minus 1.</p>
+<ul>
+<li><p class="first">For example:</p>
+<blockquote>
+<div><ul class="simple">
+<li><em>[move, go]</em> has an action set index of 0</li>
+<li><em>[turn, twist, rotate]</em> has an action set index of 1</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">res</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">build_action_structures</span><span class="p">(</span><span class="s">&quot;./source/known_actions.txt&quot;</span><span class="p">)</span>
+<span class="n">known_actions</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">print</span> <span class="n">known_actions</span>
+
+<span class="n">object_extractor_functions</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">funcs</span> <span class="o">=</span> <span class="p">[</span><span class="n">func</span><span class="o">.</span><span class="n">__name__</span> <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">object_extractor_functions</span><span class="p">]</span>
+<span class="k">print</span> <span class="n">funcs</span>
+</pre></div>
+</div>
+<p>The above code generates two important data structures in the interpretation task:</p>
+<ol class="arabic">
+<li><p class="first">List of known actions</p>
+<ul>
+<li><p class="first">Each element is a tuple containing the action and its action set index</p>
+</li>
+<li><p class="first">Each tuple takes the form (<em>action</em>, <em>action_set_index</em>)</p>
+<blockquote>
+<div><ul class="simple">
+<li>The <em>action</em> is only used to find a specific word in the command</li>
+<li>The <em>action_set_index</em> gives actual meaning to the action</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</li>
+<li><p class="first">List of <a class="reference internal" href="terms.html#object-extractor-function"><span>object extractor functions</span></a></p>
+<ul class="simple">
+<li>Pulled from the <a class="reference internal" href="extractor.html#module-interpreter.extractor" title="interpreter.extractor"><code class="xref py py-mod docutils literal"><span class="pre">extractor</span></code></a> module</li>
+<li>There is one function per action set</li>
+<li>Each function corresponds a single action set</li>
+<li>The index of each function in the list is the same as its correspond action set&#8217;s index</li>
+<li>The name of each function begins with <code class="docutils literal"><span class="pre">`object_dict\_</span></code> and the first action in its corresponding action set is appended to the end</li>
+</ul>
+</li>
+</ol>
+<div class="highlight-none"><div class="highlight"><pre>[(&#39;follow&#39;, 3), (&#39;go&#39;, 0), (&#39;move&#39;, 0), (&#39;rotate&#39;, 1), (&#39;show&#39;, 5), (&#39;speak&#39;, 4), (&#39;stop&#39;, 2), (&#39;talk&#39;, 4), (&#39;teach&#39;, 5), (&#39;tell&#39;, 4), (&#39;turn&#39;, 1), (&#39;twist&#39;, 1)]
+[&#39;object_dict_move&#39;, &#39;object_dict_turn&#39;, &#39;object_dict_stop&#39;, &#39;object_dict_follow&#39;, &#39;object_dict_talk&#39;, &#39;object_dict_show&#39;]
+</pre></div>
+</div>
+<p>The first line of output shows the contents of the known actions list.</p>
+<p>The second line of output shows the name of each function in the object extractor function list. The actual function is stored as an object in the list <code class="docutils literal"><span class="pre">object_extractor_functions</span></code>, but a list of the names are printed as output here for readability. Therefore, each individual function can be called later on by indexing that list like so: <code class="docutils literal"><span class="pre">object_extractor_functions[&lt;index&gt;](&lt;params&gt;)</span></code>.</p>
+<p>Notice that the action set index of each known action corresponds to the appropriate object extractor. For example, the object extractor for <em>talk</em>, <em>speak</em>, and <em>tell</em> are in the action set with an index of 4 and their object extractor can be accessed at index 4 (the 5th element) of <code class="docutils literal"><span class="pre">object_extractor_functions</span></code>.</p>
+<p>Also notice that the name of the extractor functions begin with <code class="docutils literal"><span class="pre">&quot;object_dict\_&quot;</span></code> and end with the first action of its corresponding action set. This concept is important to maintainability of the system. When new action sets are added to the input file, their indices are generated automatically, and the extractor functions are automatically placed in the correct order, as long as the first action of each set matches the suffix of the corresponding extractor function. Thus, the maintainer does not need to be concerned with the order of function declarations or lines in the input file.</p>
+</div>
+<div class="section" id="preprocessing-and-action-detection">
+<h2>Preprocessing and Action Detection<a class="headerlink" href="#preprocessing-and-action-detection" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">sent_text</span> <span class="o">=</span> <span class="s">&quot;Teach me how to wash my hands&quot;</span>
+<span class="n">sent</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">preprocess_text</span><span class="p">(</span><span class="n">sent_text</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">sent</span>
+</pre></div>
+</div>
+<div class="highlight-none"><div class="highlight"><pre>[&#39;Teach&#39;, &#39;me&#39;, &#39;how&#39;, &#39;to&#39;, &#39;wash&#39;, &#39;my&#39;, &#39;hands&#39;]
+</pre></div>
+</div>
+<p>The above code simply preprocesses a raw text command, which currently only involves tokenizing it.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">action_tuple</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">extract_action</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span> <span class="n">known_actions</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">action_tuple</span>
+</pre></div>
+</div>
+<p>The above code searches through each token (from first to last) to see if any of the words match an action in the known actions list built in the <a class="reference internal" href="#initial-setup"><span>previous section</span></a>.</p>
+<div class="highlight-none"><div class="highlight"><pre>(5, 0)
+</pre></div>
+</div>
+<p>The output of this search is a tuple containing the found action&#8217;s set index along with its position in the sentence in the format (<em>action_set_index</em>, <em>position_in_sent</em>). The action detected in the given sentence <em>Show me how to wash my hands</em> is <em>show</em>, which is part of the action set with index 5, grouped with the action <em>teach</em>. Also, its position in the sentence is the first word, so its position index is 0. This function would yield the same exact output if it was given the sentence <em>Teach me how to wash my hands</em>.</p>
+</div>
+<div class="section" id="extracting-objects-from-the-command">
+<h2>Extracting Objects from the Command<a class="headerlink" href="#extracting-objects-from-the-command" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">object_dict</span> <span class="o">=</span> <span class="n">interp</span><span class="o">.</span><span class="n">generate_object_dict</span><span class="p">(</span><span class="n">sent</span><span class="p">,</span> <span class="n">action_tuple</span><span class="p">,</span> <span class="n">object_extractor_functions</span><span class="p">)</span>
+
+<span class="c"># Print dictionary values in same order every time</span>
+<span class="k">print</span> <span class="s">&quot;person: &quot;</span> <span class="o">+</span> <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;person&quot;</span><span class="p">]</span>
+<span class="k">print</span> <span class="s">&quot;show_action: &quot;</span> <span class="o">+</span> <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;show_action&quot;</span><span class="p">]</span>
+<span class="k">print</span> <span class="s">&quot;object: &quot;</span> <span class="o">+</span> <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;object&quot;</span><span class="p">]</span>
+<span class="k">print</span> <span class="s">&quot;video_title: &quot;</span> <span class="o">+</span> <span class="n">object_dict</span><span class="p">[</span><span class="s">&quot;video_title&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The above code extracts the objects from the command. The action set index determines which object extractor function will be applied and thus what set of rules are going to be used to extract the objects. Since the action is <em>teach</em>, the first action in its action set is <em>show</em>, and thus the appropriate object extractor function for this command is <a class="reference internal" href="extractor.html#interpreter.extractor.object_dict_show" title="interpreter.extractor.object_dict_show"><code class="xref py py-meth docutils literal"><span class="pre">object_dict_show()</span></code></a>, which is called by indexing the <code class="docutils literal"><span class="pre">object_extractor_functions</span></code> list inside of the <a class="reference internal" href="interpreter.html#interpreter.interpreter.generate_object_dict" title="interpreter.interpreter.generate_object_dict"><code class="xref py py-meth docutils literal"><span class="pre">generate_object_dict()</span></code></a> function.</p>
+<div class="highlight-none"><div class="highlight"><pre>person: me
+show_action: wash
+object: hands
+video_title: wash-hands
+</pre></div>
+</div>
+<p>The above output simply displays the values of the objects along with their keys as stored in the resulting <a class="reference internal" href="terms.html#object-dictionary"><span>object dictionary</span></a>, which is stored as a Python <em>dict</em>. The resulting object dictionary can be sent to another software component as a JSON string or a Python <em>dict</em> and the dictionary&#8217;s content and semantic labels can used to determine which tasks LILI must complete.</p>
+<p>See the <a class="reference internal" href="extractor.html#module-interpreter.extractor" title="interpreter.extractor"><code class="xref py py-mod docutils literal"><span class="pre">extractor</span></code></a> module for a full list of object extractor functions and the rules they utilize.</p>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="extractor.html" class="btn btn-neutral float-right" title="extractor module" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="interpreter.html" class="btn btn-neutral" title="interpreter module" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2015, Brandon Gottlob.
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.0',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
