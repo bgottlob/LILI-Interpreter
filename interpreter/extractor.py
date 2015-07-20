@@ -319,12 +319,17 @@ def binary_search_shown_words(target, pool):
 
 shown_actions_path = ""
 objects_path = ""
-if "lili-interpreter" in os.listdir("."):
+if "lili-interpreter" in os.listdir("."): # If this is true, code is being run in LSSWinRobot repo
     shown_actions_path = "lili-interpreter/"
     objects_path = "lili-interpreter/"
+elif "source" in os.listdir("."): # If this is true, code is being run by make in Sphinx documentation generator
+    shown_actions_path = "source/"
+    objects_path = "source/"
 
 shown_actions_path = shown_actions_path + "input_files/known_words/known_shown_actions_small.txt"
 objects_path = objects_path + "input_files/known_words/shown_objects_small.txt"
+
+print os.listdir(".")
 
 
 # Builds synonym lists that are utilized when resolving shown actions and objects to words that are already known by LILI

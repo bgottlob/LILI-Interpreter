@@ -228,6 +228,8 @@ def interpret_sent(sent_text):
 actions_path = ""
 if "lili-interpreter" in os.listdir("."):
     actions_path = "lili-interpreter/"
+elif "source" in os.listdir("."): # If this is true, code is being run by make in Sphinx documentation generator
+    actions_path = "source/"
 
 actions_path = actions_path + "input_files/known_words/known_actions_small.txt"
 

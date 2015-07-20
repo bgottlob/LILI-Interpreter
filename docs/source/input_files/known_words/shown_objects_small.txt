@@ -1,0 +1,10 @@
+cow,bovine
+car,motorcar
+cat,feline,kitten
+dog,puppy
+chair,seat
+television,tv
+ball,sphere
+toy
+hand
+door
