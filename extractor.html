@@ -119,8 +119,229 @@
 </div>
           <div role="main" class="document">
             
-  <div class="section" id="extractor-module">
-<h1>extractor module<a class="headerlink" href="#extractor-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-interpreter.extractor">
+<span id="extractor-module"></span><h1>extractor module<a class="headerlink" href="#module-interpreter.extractor" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="interpreter.extractor.binary_search_shown_words">
+<code class="descclassname">interpreter.extractor.</code><code class="descname">binary_search_shown_words</code><span class="sig-paren">(</span><em>target</em>, <em>pool</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/extractor.html#binary_search_shown_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.extractor.binary_search_shown_words" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="interpreter.extractor.build_shown_words">
+<code class="descclassname">interpreter.extractor.</code><code class="descname">build_shown_words</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/extractor.html#build_shown_words"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.extractor.build_shown_words" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="interpreter.extractor.is_direction">
+<code class="descclassname">interpreter.extractor.</code><code class="descname">is_direction</code><span class="sig-paren">(</span><em>word</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/extractor.html#is_direction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.extractor.is_direction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a <code class="docutils literal"><span class="pre">word</span></code> represents a direction.</p>
+<p>The word is checked against a hard-coded list of directional words. If there is a match, then the <code class="docutils literal"><span class="pre">word</span></code> is determined to be a directional word. This function is present to provide a space to make this operation more robust in the future.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>word</strong> (<em>str</em>) &#8211; The word to be checked</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> if the <code class="docutils literal"><span class="pre">word</span></code> represents a directional word, <code class="docutils literal"><span class="pre">False</span></code> if not</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.extractor.is_noun">
+<code class="descclassname">interpreter.extractor.</code><code class="descname">is_noun</code><span class="sig-paren">(</span><em>tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/extractor.html#is_noun"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.extractor.is_noun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a part of speech tag represents a noun. The tags <code class="docutils literal"><span class="pre">&quot;PRP&quot;</span></code> and those that begin with <code class="docutils literal"><span class="pre">&quot;NN&quot;</span></code> are considered nouns.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tag</strong> (<em>str</em>) &#8211; The part of speech tag to be checked</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> if the tag represents a noun, <code class="docutils literal"><span class="pre">False</span></code> if not</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.extractor.is_preposition">
+<code class="descclassname">interpreter.extractor.</code><code class="descname">is_preposition</code><span class="sig-paren">(</span><em>tag</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/extractor.html#is_preposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.extractor.is_preposition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if a part of speech tag represents a preposition. The tags <code class="docutils literal"><span class="pre">&quot;TO&quot;</span></code> and <code class="docutils literal"><span class="pre">&quot;IN&quot;</span></code> considered to be prepositions.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tag</strong> (<em>str</em>) &#8211; The part of speech tag to be checked</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><code class="docutils literal"><span class="pre">True</span></code> if the tag represents a preposition, <code class="docutils literal"><span class="pre">False</span></code> if not</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.extractor.object_dict_follow">
+<code class="descclassname">interpreter.extractor.</code><code class="descname">object_dict_follow</code><span class="sig-paren">(</span><em>sent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/extractor.html#object_dict_follow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.extractor.object_dict_follow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts objects out of a sentence that contains <em>follow</em> as its <a class="reference internal" href="terms.html#action"><span>action</span></a></p>
+<p>Rules:</p>
+<ol class="arabic simple">
+<li>The first noun encountered is always the <em>person</em></li>
+<li>The second noun (if included) is always the <em>place</em></li>
+</ol>
+<p>Objects:</p>
+<ol class="arabic simple">
+<li><em>person</em> - The person who will be followed</li>
+<li><em>place</em> - The location that the person will be followed to</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sent</strong> (<em>list</em>) &#8211; A part of speech tagged list of tokens representing a sentence</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An <a class="reference internal" href="terms.html#object-dictionary"><span>object dictionary</span></a> for the command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.extractor.object_dict_move">
+<code class="descclassname">interpreter.extractor.</code><code class="descname">object_dict_move</code><span class="sig-paren">(</span><em>sent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/extractor.html#object_dict_move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.extractor.object_dict_move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts objects out of a sentence that contains <em>move</em> as its <a class="reference internal" href="terms.html#action"><span>action</span></a></p>
+<p>Rules:</p>
+<ol class="arabic simple">
+<li>Only the first noun is detected as an object</li>
+<li>If the first noun is preced by a preposition, then it is the <em>place</em></li>
+<li>If the first noun is not preceded by a preposition, then it is the <em>direction</em></li>
+</ol>
+<p>Objects:</p>
+<ol class="arabic simple">
+<li><em>place</em> - A location to move to</li>
+<li><em>direction</em> - A direction to move in</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sent</strong> (<em>list</em>) &#8211; A part of speech tagged list of tokens representing a sentence</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An <a class="reference internal" href="terms.html#object-dictionary"><span>object dictionary</span></a> for the command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.extractor.object_dict_show">
+<code class="descclassname">interpreter.extractor.</code><code class="descname">object_dict_show</code><span class="sig-paren">(</span><em>sent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/extractor.html#object_dict_show"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.extractor.object_dict_show" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts objects out of a sentence that contains <em>show</em> as its <a class="reference internal" href="terms.html#action"><span>action</span></a></p>
+<p>Rules:</p>
+<ol class="arabic simple">
+<li>The verb preceded by a <em>to</em> is the <em>shown_action</em></li>
+<li>The noun that is not preceded by a determiner or <em>to</em> is the <em>person</em></li>
+<li>The noun that is preceded either by a determiner or the <em>shown_action</em> is the <em>object</em></li>
+</ol>
+<p>Objects:</p>
+<ol class="arabic simple">
+<li><em>shown_action</em> - The action that will be shown in a video</li>
+<li><em>person</em> - The person who will be shown the action or object</li>
+<li><em>object</em> - The object that is acted on in the video or a static object to be shown as a picture</li>
+<li><em>video_title</em> - The title of the video to be played; it is currently generated by concatentating the <em>shown_action</em> with the <em>object</em></li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sent</strong> (<em>list</em>) &#8211; A part of speech tagged list of tokens representing a sentence</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An <a class="reference internal" href="terms.html#object-dictionary"><span>object dictionary</span></a> for the command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.extractor.object_dict_stop">
+<code class="descclassname">interpreter.extractor.</code><code class="descname">object_dict_stop</code><span class="sig-paren">(</span><em>sent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/extractor.html#object_dict_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.extractor.object_dict_stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts objects out of a sentence that contains <em>stop</em> as its <a class="reference internal" href="terms.html#action"><span>action</span></a></p>
+<p>Currently returns an empty dictionary.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sent</strong> (<em>list</em>) &#8211; A part of speech tagged list of tokens representing a sentence</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An <a class="reference internal" href="terms.html#object-dictionary"><span>object dictionary</span></a> for the command - currently returns an empty dictionary under all inputs</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.extractor.object_dict_talk">
+<code class="descclassname">interpreter.extractor.</code><code class="descname">object_dict_talk</code><span class="sig-paren">(</span><em>sent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/extractor.html#object_dict_talk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.extractor.object_dict_talk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts objects out of a sentence that contains <em>talk</em> as its <a class="reference internal" href="terms.html#action"><span>action</span></a></p>
+<p>Rules:</p>
+<ol class="arabic simple">
+<li>The noun to come after the word <em>about</em> is the <em>topic</em></li>
+<li>The noun to come after any preposition that is not <em>about</em> is the <em>person</em></li>
+<li>Other nouns will be tagged as <em>unknown</em></li>
+</ol>
+<p>Objects:</p>
+<ol class="arabic simple">
+<li><em>person</em> - The person to talk to</li>
+<li><em>topic</em> - The subject to talk about</li>
+<li><em>unknown</em> - The role of this noun is not known</li>
+</ol>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sent</strong> (<em>list</em>) &#8211; A part of speech tagged list of tokens representing a sentence</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An <a class="reference internal" href="terms.html#object-dictionary"><span>object dictionary</span></a> for the command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.extractor.object_dict_turn">
+<code class="descclassname">interpreter.extractor.</code><code class="descname">object_dict_turn</code><span class="sig-paren">(</span><em>sent</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/extractor.html#object_dict_turn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.extractor.object_dict_turn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extracts objects out of a sentence that contains <em>turn</em> as its <a class="reference internal" href="terms.html#action"><span>action</span></a>.</p>
+<p>Currently uses the same rules as <a class="reference internal" href="#interpreter.extractor.object_dict_move" title="interpreter.extractor.object_dict_move"><code class="xref py py-meth docutils literal"><span class="pre">object_dict_move()</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sent</strong> (<em>list</em>) &#8211; A part of speech tagged list of tokens representing a sentence</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An <a class="reference internal" href="terms.html#object-dictionary"><span>object dictionary</span></a> for the command</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 

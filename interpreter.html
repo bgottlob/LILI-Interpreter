@@ -119,8 +119,189 @@
 </div>
           <div role="main" class="document">
             
-  <div class="section" id="interpreter-module">
-<h1>interpreter module<a class="headerlink" href="#interpreter-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-interpreter.interpreter">
+<span id="interpreter-module"></span><h1>interpreter module<a class="headerlink" href="#module-interpreter.interpreter" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="interpreter.interpreter.binary_search_actions">
+<code class="descclassname">interpreter.interpreter.</code><code class="descname">binary_search_actions</code><span class="sig-paren">(</span><em>target</em>, <em>pool</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/interpreter.html#binary_search_actions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.interpreter.binary_search_actions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Binary search to find a <code class="docutils literal"><span class="pre">target</span></code> word in a <code class="docutils literal"><span class="pre">pool</span></code> of possibilities.</p>
+<p>This binary search is used to find a target word with fast performance even with a large search pool. It is implemented recursively to provide a simpler implementation. It assumes that the known actions list is sorted in descending (A to Z) order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>target</strong> (<em>str</em>) &#8211; The word to search for</li>
+<li><strong>pool</strong> (<em>list</em>) &#8211; A list of tuples <code class="docutils literal"><span class="pre">(str,</span> <span class="pre">int)</span></code>, each containing the string of a known <a class="reference internal" href="terms.html#action"><span>action</span></a> and its <a class="reference internal" href="terms.html#action-set-index"><span>action set index</span></a></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>The action set index of the <code class="docutils literal"><span class="pre">target</span></code> word if it is found in the <code class="docutils literal"><span class="pre">pool</span></code></p>
+<ul class="simple">
+<li>Returns -1 if no match is found</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">int</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.interpreter.build_action_structures">
+<code class="descclassname">interpreter.interpreter.</code><code class="descname">build_action_structures</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/interpreter.html#build_action_structures"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.interpreter.build_action_structures" title="Permalink to this definition">¶</a></dt>
+<dd><p>MUST UPDATE FOR CREATING THE LIST OF FIRST ACTIONS
+Given a filename that contains a list of known <a class="reference internal" href="terms.html#action"><span>actions</span></a>, generates the data structures needed to interpret commands.</p>
+<p>Opens a file of known actions, where each action set is represented on one line (see <a class="reference internal" href="interpreterdemo.html#initial-setup"><span>this part of the interpreter demo</span></a> for details on the input file). For each word in this file, a tuple <em>(str, int)</em> is generated that contains that word along with its <a class="reference internal" href="terms.html#action-set-index"><span>action set index</span></a>. This tuple is then appended to the list of known actions. This list is sorted by A-Z order before it is returned to prepare it for binary search operations.</p>
+<p>A list of <a class="reference internal" href="terms.html#object-extractor-function"><span>object extractor functions</span></a> is created to correspond to the action set indices be called later on. For each line, another function is added to the extractor function list. To determine the name of the extractor function to be added next, the first word in the action set is appended to the end of the string <code class="docutils literal"><span class="pre">&quot;object_dict\_&quot;</span></code>. Once the function name string is built, the function is retreived from the extractor module and is appended to the extractor function list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<em>str</em>) &#8211; The name of the file that contains the list of known actions</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A tuple <code class="docutils literal"><span class="pre">(known_actions,</span> <span class="pre">object_extractor_functions)</span></code> containing:<ol class="arabic simple">
+<li><code class="docutils literal"><span class="pre">known_actions</span></code> - The list of tuples each containing a known action and its set index</li>
+<li><code class="docutils literal"><span class="pre">object_extractor_functions</span></code> - The list of object extractor functions whose list indices correspond with the appropriate action set indices</li>
+</ol>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">(list, list)</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This function only needs to run when the input file is updated. It should not be run every time a new command needs to be interpreted.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.interpreter.extract_action">
+<code class="descclassname">interpreter.interpreter.</code><code class="descname">extract_action</code><span class="sig-paren">(</span><em>sent</em>, <em>known_actions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/interpreter.html#extract_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.interpreter.extract_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Finds the <a class="reference internal" href="terms.html#action"><span>action</span></a> that LILI can respond to, given a tokenized command sentence and a list of known actions.</p>
+<p>The action is most likely one of the first couple of words of the command, so the sentence is processed from first word to last word. Each word in the sentence is searched for in the given list of known actions. The first word that is found in the known actions array is determined to be the action, and processing ends. A binary search algorithm is used to search for the word to keep processing time short even with large lists of known actions.</p>
+<p>A tuple that contains two values is returned:</p>
+<blockquote>
+<div><ol class="arabic simple">
+<li>The action&#8217;s <a class="reference internal" href="terms.html#action-set-index"><span>action set index value</span></a></li>
+<li>The position of the found word in the sentence represented as an index value</li>
+</ol>
+</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sent</strong> (<em>list</em>) &#8211; A list containing the tokenized sentence</li>
+<li><strong>known_actions</strong> (<em>list</em>) &#8211; A list of tuples <code class="docutils literal"><span class="pre">(str,</span> <span class="pre">int)</span></code>, each containing the string of a known action and its action set index</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><p>A tuple that contains the action&#8217;s set index and position in the command sentence</p>
+<ul class="simple">
+<li>Returns (-1, 0) if no action is found</li>
+</ul>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">(int, int)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.interpreter.generate_json">
+<code class="descclassname">interpreter.interpreter.</code><code class="descname">generate_json</code><span class="sig-paren">(</span><em>action</em>, <em>object_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/interpreter.html#generate_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.interpreter.generate_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a JSON string representation of an <a class="reference internal" href="terms.html#object-dictionary"><span>object dictionary</span></a> with an entry for the action&#8217;s <a class="reference internal" href="terms.html#action-set-index"><span>set index</span></a></p>
+<p>First adds the <a class="reference internal" href="terms.html#action"><span>action</span></a> and its set index to the object dictionary, then uses the <code class="docutils literal"><span class="pre">json</span></code> module to dump the final dictionary into a JSON string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>action</strong> (<em>int</em>) &#8211; The set index of the action</li>
+<li><strong>object_dict</strong> (<em>dict</em>) &#8211; The object dictionary to be converted to a JSON string</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A JSON string representation of the object dictionary and the action set index</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">str</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.interpreter.generate_object_dict">
+<code class="descclassname">interpreter.interpreter.</code><code class="descname">generate_object_dict</code><span class="sig-paren">(</span><em>sent</em>, <em>action_tuple</em>, <em>object_extractor_functions</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/interpreter.html#generate_object_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.interpreter.generate_object_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an <a class="reference internal" href="terms.html#object-dictionary"><span>object dictionary</span></a> according to the provided <a class="reference internal" href="terms.html#action"><span>action</span></a>.</p>
+<p>Begins by part of speech tagging the sentence, then trimming the action out of the sentence so that it is not re-processed (depending on implementation details, the presence of the main action in the sentence may throw off results). Then calls the appropriate <a class="reference internal" href="terms.html#object-extractor-function"><span>object extractor function</span></a> to create the object dictionary. The called object extractor is determined by the action&#8217;s <a class="reference internal" href="terms.html#action-set-index"><span>set index value</span></a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sent</strong> (<em>list</em>) &#8211; A list containing tokens of the command sentence</li>
+<li><strong>action_tuple</strong> (<em>int, int</em>) &#8211; <p>A tuple <code class="docutils literal"><span class="pre">(action_set_index,</span> <span class="pre">position_in_sent)</span></code>:</p>
+<ol class="arabic">
+<li><code class="docutils literal"><span class="pre">action_set_index</span></code> - The action&#8217;s action set index</li>
+<li><code class="docutils literal"><span class="pre">position_in_sent</span></code> - An index representing the action&#8217;s position in the command sentence</li>
+</ol>
+<ul>
+<li>This tuple is in the same format as the return value of <a class="reference internal" href="#interpreter.interpreter.extract_action" title="interpreter.interpreter.extract_action"><code class="xref py py-meth docutils literal"><span class="pre">extract_action()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">An object dictionary for the command</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dict</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.interpreter.interpret_sent">
+<code class="descclassname">interpreter.interpreter.</code><code class="descname">interpret_sent</code><span class="sig-paren">(</span><em>sent_text</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/interpreter.html#interpret_sent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.interpreter.interpret_sent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Implements the order of execution (pipeline) of interpreting a sentence - utilized for checking test cases</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="interpreter.interpreter.preprocess_text">
+<code class="descclassname">interpreter.interpreter.</code><code class="descname">preprocess_text</code><span class="sig-paren">(</span><em>text</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/interpreter/interpreter.html#preprocess_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#interpreter.interpreter.preprocess_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Preprocesses a raw text sentence. Currently only tokenizes the sentence.</p>
+<p>Used to do any preprocessing on a sentence in raw text. Currently, the only preprocessing operation is tokenizing the sentence into individual words and punctuation marks.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sent</strong> (<em>str</em>) &#8211; A string containing a command sentence</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of preprocessed tokens from the sentence</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Do not do any part of speech tagging in this function. It is a compute-intensive task and may not be needed for all commands (i.e. erroneous situations).</p>
+</div>
+</dd></dl>
+
 </div>
 
 
