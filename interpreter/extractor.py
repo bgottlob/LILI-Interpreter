@@ -268,6 +268,18 @@ def object_dict_show(sent):
 
     return object_dict
 
+def object_dict_start(sent):
+    """
+    Specially crafted to start up story mode. Only extracts the first noun encountered as the object the start.
+    """
+    object_dict = {}
+
+    for token in sent:
+        if is_noun(token[1]) and not "object" in object_dict:
+            object_dict["object"] = token[0]
+
+    return object_dict
+
 def build_shown_words(filename):
     # Initializing data structures
     known_words = []
@@ -328,9 +340,6 @@ elif "source" in os.listdir("."): # If this is true, code is being run by make i
 
 shown_actions_path = shown_actions_path + "input_files/known_words/known_shown_actions_small.txt"
 objects_path = objects_path + "input_files/known_words/shown_objects_small.txt"
-
-print os.listdir(".")
-
 
 # Builds synonym lists that are utilized when resolving shown actions and objects to words that are already known by LILI
 shown_action_res = build_shown_words(shown_actions_path)

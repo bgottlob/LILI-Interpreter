@@ -4,7 +4,7 @@ import interpreter.interpreter as interp
 from subprocess import call
 import sys
 import IPC
-import time
+from time import sleep
 
 is_windows = True
 
@@ -18,12 +18,9 @@ else:
 vm = IPC.process(True, ".\lili-interpreter\LILIExecutor.py")
 
 started = False # Changes once it gets start command from master controller
-lily = False # User must say "Lily" before giving a command
 
 r = sr.Recognizer()
 def runRecognizer():
-    if lily:
-       sys.stderr.write("LILI is listening\n")
 
     # Comment out this with block to use standard input instead of speech recognition
     with sr.Microphone() as source:
@@ -32,7 +29,7 @@ def runRecognizer():
         sys.stderr.write("Speak now\n")
         audio = r.listen(source)
         sent = "" + r.recognize(audio)
-	
+
     # Uncomment this to use standard input instead of speech recognition
     """
     sys.stderr.write("Type a sentence:")
@@ -75,10 +72,10 @@ def process_result(res):
         elif res["action"] == "show":
 
             if "video_title" in res:
-				
+
                 if "lili-interpreter" in os.listdir("."):
                     video_path = "lili-interpreter/"
-                
+
                 video_path = video_path + "videos/" + res["video_title"]
 
                 if is_windows:
@@ -121,6 +118,11 @@ def process_result(res):
                         break
                 if not found_img:
                     sys.stderr.write("Image named " + img_path + " not found!\n")
+        elif res["action"] == "start":
+            if "object" in res and res["object"] == "story":
+                sys.stderr.write("Starting story mode\n")
+            else:
+                sys.stderr.write("Nothing to start was found in the command, taking no action\n")
 
         # LILI master control has no actual actions for talking to the user, so when that action is detected, nothing is sent to the master control
 
@@ -131,29 +133,36 @@ while not started:
     vm.tryReadLine()
     IPC.Sync()
 
+# Checks if this is the first voice command to be checked
+first = True
+
 while started:
+
+    # Wait for LILI to finish talking for the first time so she doesn't listen to herself
+    if first:
+        sys.stderr.write("Waiting for LILI to finish talking before listening\n")
+        sleep(3)
+        first = False
 
     try:
         sent = runRecognizer()
         sys.stderr.write("Recognized sentence: " + sent + "\n")
-        if sent.lower() == "lily":
-            lily = True
-        elif sent.lower() == "never mind" or sent.lower() == "nevermind":
-            lily = False
-            sys.stderr.write("LILI is not listening for your command anymore\n")
-        elif lily == True: # If this is satisfied, lily is being talked to
-                lily = False
-                if sent.lower() == "good bye" or sent.lower() == "goodbye":
-                    sys.stderr.write("Got end signal\n")
-                    started = False
-                else: # Process the result and take appropriate action
-                    try:
-                        res = interp.interpret_sent(sent)
-                        sys.stderr.write("Result: " + str(res) +"\n")
-                        process_result(res)
-                    except Exception,e:
-                        sys.stderr.write("Sentence could not be interpreted due to exception:\n")
-                        sys.stderr.write(str(e) + "\n")
+        if sent.lower().startswith("lily") == "lily":
+
+            # Trim 'lily' out of the sentence
+            sent = sent[4:].strip()
+
+            if sent.lower() == "good bye" or sent.lower() == "goodbye":
+                sys.stderr.write("Got end signal\n")
+                started = False
+            else: # Process the result and take appropriate action
+                try:
+                    res = interp.interpret_sent(sent)
+                    sys.stderr.write("Result: " + str(res) +"\n")
+                    process_result(res)
+                except Exception,e:
+                    sys.stderr.write("Sentence could not be interpreted due to exception:\n")
+                    sys.stderr.write(str(e) + "\n")
         else:
             sys.stderr.write("LILI did not listen to your command, say her name first\n")
 

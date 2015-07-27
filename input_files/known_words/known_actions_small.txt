@@ -4,3 +4,4 @@ stop
 follow
 talk,speak,tell
 show,teach
+start,begin
